@@ -29,10 +29,14 @@ class ReviewSeeder extends Seeder
                 $newReview->email = $faker->email();
                 $newReview->first_name = $faker->firstName();
                 $newReview->last_name = $faker->lastName();
-
-                $startDate = Carbon::create(2024, 1, 1, 0, 0, 0);
-                $endDate = Carbon::create(2024, 12, 31, 0, 0, 0);
-                $randomDate = $faker->dateTimeBetween($startDate, $endDate);
+                // Generate random date, excluding non existing hour due to DST
+                $DST_from = Carbon::create(2024, 3, 31, 2, 0, 0);
+                $DST_to = Carbon::create(2024, 3, 31, 3, 0, 0);
+                do {
+                    $startDate = Carbon::create(2024, 1, 1, 0, 0, 0);
+                    $endDate = Carbon::create(2024, 12, 31, 23, 59, 59);
+                    $randomDate = $faker->dateTimeBetween($startDate, $endDate);
+                } while (Carbon::parse($randomDate)->isBetween($DST_from, $DST_to));
                 $newReview->created_at = $randomDate;
                 $newReview->updated_at = $randomDate;
                 $newReview->save();
