@@ -44,6 +44,13 @@ class AuthController extends Controller
                 $request_pwd = $validated['password'];
                 if ($request_pwd === $user->password) {
                     Log::info("Authenticated user: $request_full_name, id: {$user->id}");
+
+                    // Log in the user and establish the session
+                    Auth::login($user, $remember = true);
+
+                    // Regenerate the session to prevent session fixation attacks
+                    $request->session()->regenerate();
+
                     return response()->json([
                         'message' => 'User authenticated',
                         'user_id' => $user->id
@@ -63,7 +70,7 @@ class AuthController extends Controller
                 return response()->json([
                     'message' => 'Invalid credentials'
                 ], 401);
-            } */
+            }
 
             $user = User::where('email', $request->email)->firstOrFail();
             $token = $user->createToken('auth-token')->plainTextToken;
@@ -74,7 +81,7 @@ class AuthController extends Controller
                 'message' => 'Login successful',
                 'user' => $user,
                 'token' => $token
-            ]);
+            ]); */
         } catch (\Exception $e) {
             Log::error('Login error', ['error' => $e->getMessage()]);
             return response()->json([
