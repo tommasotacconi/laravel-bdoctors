@@ -57,7 +57,7 @@ Route::get('/sponsorships', [IndexSponsoshipController::class, 'index'])->name('
 
 // Profile routes
 Route::get('/profiles', [IndexController::class, 'index'])->name('api.profiles.index');
-Route::get('/profiles/{id}', [ShowController::class, 'show'])->name('api.profiles.show');
+Route::get('/profiles/{id}', [ShowController::class, 'show'])->name('api.profiles.show')->middleware('auth');
 Route::post('/profiles/{id}', [CreateController::class, 'create'])->name('api.profiles.create');
 Route::get('/profiles/edit/{id}', [EditController::class, 'edit'])->name('api.profiles.edit');
 Route::post('/profiles/edit/{id}', [UpdateController::class, 'update'])->name('api.profiles.update');
@@ -67,7 +67,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', function (Request $request) {
         return $request->user()->load('specializations');
     });
-
 });
 
 Route::post('/logout', [AuthController::class, 'logout'])->name('api.logout');

@@ -6,6 +6,7 @@ use App\Models\Profile;
 use App\Models\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
 class ShowController extends Controller
@@ -13,11 +14,14 @@ class ShowController extends Controller
     /**
      * Display the specified profile with user data.
      *
-     * @param  int  $id
+     * @param  string  $id
      * @return \Illuminate\Http\JsonResponse
      */
     public function show($id)
     {
+        if (Auth::id() != $id)
+            return response()->json(['message' => 'Unauthorized rquest'], 401);
+
         try {
             // Load profile with user and specializations in a single query
             $profile = Profile::with(['user.specializations', 'messages', 'sponsorships'])
@@ -36,7 +40,7 @@ class ShowController extends Controller
                     'first_name' => $profile->user->first_name,
                     'last_name' => $profile->user->last_name,
                     'email' => $profile->user->email,
-                    'specializations' => $profile->user->specializations->map(function($spec) {
+                    'specializations' => $profile->user->specializations->map(function ($spec) {
                         return [
                             'id' => $spec->id,
                             'name' => $spec->name
@@ -52,7 +56,6 @@ class ShowController extends Controller
                 'success' => true,
                 'data' => $responseData
             ], 200);
-
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             Log::warning('Profile not found', ['profile_id' => $id]);
             return response()->json([
