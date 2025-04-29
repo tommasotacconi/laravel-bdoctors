@@ -141,6 +141,21 @@ class AuthController extends Controller
         return response()->json(['message' => 'Logged in successfully MARTE']);
     }
 
+    public function checkLoginStatus()
+    {
+        $user_id = Auth::id();
+        if ($user_id) {
+            return response(['authentication' => [
+                'status' => 'true',
+                'userId' => $user_id
+            ]], 200);
+        }
+
+        return response(['authentication' => [
+            'status' => 'false',
+            'userId' => null
+        ]], 404);
+    }
 
     /**
      * Handle a logout request.
@@ -151,7 +166,7 @@ class AuthController extends Controller
     public function logout(Request $request)
     {
         try {
-            $request->user()->currentAccessToken()->delete();
+            // $request->user()->currentAccessToken()->delete();
 
             Log::info('User logged out successfully', ['user_id' => $request->user()->id]);
 

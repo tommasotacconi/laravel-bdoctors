@@ -31,8 +31,9 @@ use App\Http\Controllers\Api\BraintreeApiController;
 |
 */
 
-// Public routes
+// Authentication routes
 Route::post('/login', [AuthController::class, 'login'])->name('api.login');
+Route::get('/login/check', [AuthController::class, 'checkLoginStatus'])->name('api.login.check');
 Route::post('/register', [ApiRegisterController::class, 'register'])->name('api.register');
 
 // Specializations route
@@ -42,7 +43,6 @@ Route::get('/specializations', function () {
         'specializations' => $specializations
     ]);
 })->name('api.specializations');
-
 
 // Review routes
 Route::get('/reviews', [IndexReviewController::class, 'index'])->name('api.reviews.index');
@@ -57,10 +57,13 @@ Route::get('/sponsorships', [IndexSponsoshipController::class, 'index'])->name('
 
 // Profile routes
 Route::get('/profiles', [IndexController::class, 'index'])->name('api.profiles.index');
-Route::get('/profiles/{id}', [ShowController::class, 'show'])->name('api.profiles.show')->middleware('auth');
-Route::post('/profiles/{id}', [CreateController::class, 'create'])->name('api.profiles.create');
-Route::get('/profiles/edit/{id}', [EditController::class, 'edit'])->name('api.profiles.edit');
-Route::post('/profiles/edit/{id}', [UpdateController::class, 'update'])->name('api.profiles.update');
+// -protected
+Route::middleware('auth')->group(function () {
+    Route::get('/profiles/{id}', [ShowController::class, 'show'])->name('api.profiles.show');
+    Route::post('/profiles/{id}', [CreateController::class, 'create'])->name('api.profiles.create');
+    Route::get('/profiles/edit/{id}', [EditController::class, 'edit'])->name('api.profiles.edit');
+    Route::post('/profiles/edit/{id}', [UpdateController::class, 'update'])->name('api.profiles.update');
+});
 
 // Protected routes
 Route::middleware('auth:sanctum')->group(function () {
