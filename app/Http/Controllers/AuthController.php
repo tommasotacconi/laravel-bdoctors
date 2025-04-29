@@ -141,6 +141,11 @@ class AuthController extends Controller
         return response()->json(['message' => 'Logged in successfully MARTE']);
     }
 
+    /**
+     * Check the user authentication status via API
+     *
+     * @return function:void
+     */
     public function checkLoginStatus()
     {
         $user_id = Auth::id();
