@@ -35,6 +35,7 @@ use App\Http\Controllers\Api\BraintreeApiController;
 Route::post('/login', [AuthController::class, 'login'])->name('api.login');
 Route::get('/login/check', [AuthController::class, 'checkLoginStatus'])->name('api.login.check');
 Route::post('/register', [ApiRegisterController::class, 'register'])->name('api.register');
+Route::post('/logout', [AuthController::class, 'logout']);
 
 // Specializations route
 Route::get('/specializations', function () {
@@ -72,6 +73,5 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 });
 
-Route::post('/logout', [AuthController::class, 'logout'])->name('api.logout');
 Route::get('/braintree/token', [BraintreeApiController::class, 'generateToken']);
 Route::post('/braintree/process-payment', [BraintreeApiController::class, 'processPayment']);
