@@ -89,7 +89,8 @@ class AuthController extends Controller
             ], 500);
         }
 
-        $request->validate([
+        // Previous validation logic
+        /* $request->validate([
             'email' => 'required|email',
             'password' => 'required',
         ]);
@@ -118,27 +119,7 @@ class AuthController extends Controller
                 'message' => 'Logged in successfully',
                 'token' => $token
             ]);
-        }
-
-        return response()->json(['error' => 'Unauthorized'], 401);
-        // Valida le credenziali
-        $validated = $request->validate([
-            'email' => 'required|email',
-            'password' => 'required|min:8',
-        ]);
-
-        // Cerca l'utente con l'email fornita
-        $user = User::where('email', $validated['email'])->first();
-
-        if (!$user || !Hash::check($validated['password'], $user->password)) {
-            return response()->json(['message' => 'Credenziali non valide'], 401);
-        }
-
-        // Autentica l'utente usando la sessione
-        Auth::login($user);
-
-        // Restituisce una risposta con il messaggio di successo
-        return response()->json(['message' => 'Logged in successfully MARTE']);
+        } */
     }
 
     /**
