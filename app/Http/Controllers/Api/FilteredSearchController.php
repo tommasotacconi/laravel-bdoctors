@@ -7,16 +7,39 @@ use App\Models\Profile;
 use App\Models\Review;
 use App\Models\Specialization;
 use App\Models\User;
+use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class FilteredSearchController extends Controller
 {
-    public function filter($id, $rating, $reviews)
+    public function filter($specialization, $rating, $reviews)
     {
-        // $input_rating = $rating->query('input_rating');
+        if ($specialization) {
+            // `$specialization` manipulation to decode its name from the URL
+            $specialization = str_replace(array('-', '_'), array(' ', '-'), $specialization);
+            $specialization = preg_replace_callback(
+                '/^./',
+                function ($matches) {
+                    return strtoupper($matches[0]);
+                },
+                $specialization
+            );
 
-        if ($id) {
+            try {
+                // Check specialization existance before executing complete query
+                $query = Specialization::select('name')->where('name', '=', $specialization);
+                if ($query->get()->isEmpty()) {
+                    throw new Exception('Specialization not found');
+                }
+                Log::info('Filtering reviews for specialization: ' . $query->get());
+            } catch (Exception $e) {
+                //throw $th;
+                return response()->json(['Error' => ['message' => $e->getMessage()]]);
+            }
+
             $query = User::select('users.*', 'profiles.*', 'specializations.id as specializations_id', 'specializations.name as specializations_name',)
+                ->where('specializations.name', '=', $specialization)
                 ->join('specialization_user', 'users.id', '=', 'specialization_user.user_id')
                 ->join('specializations', 'specializations.id', '=', 'specialization_user.specialization_id')
                 ->join('profiles', 'users.id', '=', 'profiles.user_id')
@@ -24,25 +47,22 @@ class FilteredSearchController extends Controller
                 // ->join('profile_sponsorship', 'profiles.id', '=', 'profile_sponsorship.profile_id')
                 // ->join('sponsorships', 'sponsorships.id', '=', 'profile_sponsorship.sponsorship_id')
                 ->leftJoin('reviews', 'profiles.id', '=', 'reviews.profile_id')
-                ->where('specialization_user.specialization_id', '=', $id)
                 ->groupBy('users.id', 'profiles.id', 'specializations.id');
+
+            $query->selectRaw(
+                'CEIL(AVG(reviews.votes)) AS media_voti, COALESCE(COUNT(reviews.id), 0) AS totalReviews'
+            );
+
+            if ($rating !== null) {
+                $query->havingRaw('COALESCE(AVG(reviews.votes), 0) >= ?', [$rating]);
+            }
+
+            if ($reviews !== null) {
+                $query->havingRaw('COALESCE(COUNT(reviews.id), 0) >= ?', [$reviews]);
+            }
         }
-
-        $query->selectRaw(
-            'ceil(avg(reviews.votes)) as media_voti,
-        COALESCE(count(reviews.id), 0) as totalReviews'
-        );
-
-        if ($rating !== null) {
-            $query->havingRaw('COALESCE(AVG(reviews.votes), 0) >= ?', [$rating]);
-        }
-
-        if ($reviews !== null) {
-            $query->havingRaw('COALESCE(COUNT(reviews.id), 0) >= ?', [$reviews]);
-        }
-
-
         $users = $query->get();
+        Log::info('Finished filtering process');
 
         return response()->json($users);
     }
