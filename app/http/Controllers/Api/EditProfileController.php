@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 
-class EditController extends Controller
+class EditProfileController extends Controller
 {
     public function edit($id)
     {
@@ -29,7 +29,7 @@ class EditController extends Controller
                     'first_name' => $profile->user->first_name,
                     'last_name' => $profile->user->last_name,
                     'email' => $profile->user->email,
-                    'specializations' => $profile->user->specializations->map(function($spec) {
+                    'specializations' => $profile->user->specializations->map(function ($spec) {
                         return [
                             'id' => $spec->id,
                             'name' => $spec->name
@@ -45,7 +45,6 @@ class EditController extends Controller
                 'success' => true,
                 'data' => $responseData
             ], 200);
-
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             Log::warning('Profile not found', ['profile_id' => $id]);
             return response()->json([

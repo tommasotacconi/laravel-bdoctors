@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Profile;
 use Illuminate\Http\Request;
 
-class IndexController extends Controller
+class IndexProfileController extends Controller
 {
     public function index()
     {

@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
-class CreateController extends Controller
+class CreateProfileController extends Controller
 {
     /**
      * Create a new profile for a user
@@ -32,7 +32,7 @@ class CreateController extends Controller
             if ($request->hasFile('photo')) {
                 $photo = $validated['photo'];
                 $name = $photo->getClientOriginalName();
-                $path = $photo->storeAs('photos', $name,'public');
+                $path = $photo->storeAs('photos', $name, 'public');
                 $profile->photo = $path;
 
                 $photoUrl = asset('storage/' . $path);
@@ -59,7 +59,6 @@ class CreateController extends Controller
                 'message' => 'Profile created successfully',
                 'profile' => $profile
             ], 201);
-
         } catch (\Illuminate\Validation\ValidationException $e) {
             Log::error('Profile creation validation failed', ['errors' => $e->errors()]);
             return response()->json([

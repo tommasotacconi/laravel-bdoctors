@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
-class ShowController extends Controller
+class ShowProfileController extends Controller
 {
     /**
      * Display the specified profile with user data.
@@ -17,15 +17,17 @@ class ShowController extends Controller
      * @param  string  $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function show($id)
+    public function show()
     {
-        if (Auth::id() != $id)
+        $authenticatedUserId = Auth::id();
+        if (!$authenticatedUserId)
             return response()->json(['message' => 'Unauthorized rquest'], 401);
+        Log::info('Authenticated user of id ' . $authenticatedUserId . ' is accessing');
 
         try {
             // Load profile with user and specializations in a single query
             $profile = Profile::with(['user.specializations', 'messages', 'sponsorships'])
-                ->findOrFail($id);
+                ->where('user_id', $authenticatedUserId)->firstOrFail();
 
             // Transform the data into a cleaner format
             $responseData = [
@@ -50,21 +52,21 @@ class ShowController extends Controller
                 'has_active_sponsorship' => $profile->sponsorships->where('pivot.end_date', '>', now())->isNotEmpty()
             ];
 
-            Log::info('Profile retrieved successfully', ['profile_id' => $id]);
+            Log::info('Profile retrieved successfully', ['profile_id' => $authenticatedUserId]);
 
             return response()->json([
                 'success' => true,
                 'data' => $responseData
             ], 200);
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            Log::warning('Profile not found', ['profile_id' => $id]);
+            Log::warning('Profile not found', ['profile_id' => $authenticatedUserId]);
             return response()->json([
                 'success' => false,
                 'message' => 'The requested profile could not be found'
             ], 404);
         } catch (\Exception $e) {
             Log::error('Failed to retrieve profile', [
-                'profile_id' => $id,
+                'profile_id' => $authenticatedUserId,
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
