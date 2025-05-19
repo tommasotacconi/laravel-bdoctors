@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Profile;
 use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
@@ -51,9 +52,15 @@ class AuthController extends Controller
                     // Regenerate the session to prevent session fixation attacks
                     $request->session()->regenerate();
 
+                    // Retrieve related profile_id if present
+                    // $profile_id = Profile::select('id')->where('user_id', $user->id)->get();
+
                     return response()->json([
                         'message' => 'User authenticated',
-                        'user_id' => $user->id
+                        /* 'user' => [
+                            'id' => $user->id,
+                            'profile_id' => $profile_id[0]->id,
+                        ] */
                     ]);
                 } else {
                     throw new Exception('invalid password');
