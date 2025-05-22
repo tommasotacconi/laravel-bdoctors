@@ -59,7 +59,7 @@ Route::post('/messages', [CreateMessageController::class, 'create'])->name('api.
 Route::get('/sponsorships', [IndexSponsoshipController::class, 'index'])->name('api.sponsorships.index');
 
 // Profiles routes
-Route::get('/profiles/{nameId?}', [IndexProfileController::class, 'index'])->name('api.profiles.index');
+Route::get('/profiles/{nameId?}', [IndexProfileController::class, 'index'])->name('api.profiles.index')->where('nameId', '\S+-\S+(-\d+)?');
 // -protected
 Route::middleware('auth')->group(function () {
     Route::get('/profiles/show', [ShowProfileController::class, 'show'])->name('api.profiles.show');
