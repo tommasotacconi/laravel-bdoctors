@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Log;
 
 class FilteredSearchController extends Controller
 {
-    public function filter($specialization, $rating, $reviews)
+    public function filter(string $specialization, ?string $rating = null, ?string $reviews = null)
     {
         if ($specialization) {
             // `$specialization` manipulation to decode its name from the URL
@@ -38,16 +38,16 @@ class FilteredSearchController extends Controller
                 return response()->json(['Error' => ['message' => $e->getMessage()]]);
             }
 
-            $query = User::select('users.*', 'profiles.*', 'specializations.id as specializations_id', 'specializations.name as specializations_name',)
-                ->where('specializations.name', '=', $specialization)
+            $query = Profile::select('profiles.*', 'specializations.id as specializations_id', 'specializations.name as specialization_name')
+                ->join('users', 'profiles.user_id', '=', 'users.id')
                 ->join('specialization_user', 'users.id', '=', 'specialization_user.user_id')
-                ->join('specializations', 'specializations.id', '=', 'specialization_user.specialization_id')
-                ->join('profiles', 'users.id', '=', 'profiles.user_id')
+                ->join('specializations', 'specialization_user.specialization_id', '=', 'specializations.id')
                 // sponsorship
                 // ->join('profile_sponsorship', 'profiles.id', '=', 'profile_sponsorship.profile_id')
                 // ->join('sponsorships', 'sponsorships.id', '=', 'profile_sponsorship.sponsorship_id')
-                ->leftJoin('reviews', 'profiles.id', '=', 'reviews.profile_id')
-                ->groupBy('users.id', 'profiles.id', 'specializations.id');
+                ->join('reviews', 'profiles.id', '=', 'reviews.profile_id')
+                ->where('specializations.name', '=', $specialization)
+                ->groupBy('profiles.id', 'users.id', 'specializations.id')->with(['user', 'user.specializations']);
 
             $query->selectRaw(
                 'CEIL(AVG(reviews.votes)) AS media_voti, COALESCE(COUNT(reviews.id), 0) AS totalReviews'
@@ -62,6 +62,7 @@ class FilteredSearchController extends Controller
             }
         }
         $users = $query->get();
+        $users->makeHidden(['id', 'user_id']);
         Log::info('Finished filtering process');
 
         return response()->json($users);

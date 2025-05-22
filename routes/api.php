@@ -50,7 +50,7 @@ Route::get('/specializations', function () {
 // Reviews routes
 Route::get('/reviews', [IndexReviewController::class, 'index'])->name('api.reviews.index');
 Route::post('/reviews', [CreateReviewController::class, 'create'])->name('api.reviews.create');
-Route::get('/reviews/filter/{specialization}/{rating}/{reviews}', [FilteredSearchController::class, 'filter'])->name('api.reviews.filter');
+Route::get('/reviews/filter/{specialization}/{rating?}/{reviews?}', [FilteredSearchController::class, 'filter'])->name('api.reviews.filter');
 
 // Messages routes
 Route::get('/messages', [IndexMessageController::class, 'index'])->name('api.messages.index');
@@ -59,7 +59,7 @@ Route::post('/messages', [CreateMessageController::class, 'create'])->name('api.
 Route::get('/sponsorships', [IndexSponsoshipController::class, 'index'])->name('api.sponsorships.index');
 
 // Profiles routes
-Route::get('/profiles', [IndexProfileController::class, 'index'])->name('api.profiles.index');
+Route::get('/profiles/{nameId?}', [IndexProfileController::class, 'index'])->name('api.profiles.index');
 // -protected
 Route::middleware('auth')->group(function () {
     Route::get('/profiles/show', [ShowProfileController::class, 'show'])->name('api.profiles.show');
