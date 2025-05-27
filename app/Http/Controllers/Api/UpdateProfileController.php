@@ -8,7 +8,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
-class UpdateController extends Controller
+class UpdateProfileController extends Controller
 {
     public function update(Request $request, string $id)
     {
@@ -24,9 +24,9 @@ class UpdateController extends Controller
             $specVecchie = $user->specializations;
 
             //if (count($validated['specializations']) == 0) {
-                $user->specializations()->sync($validated['specializations']);
+            $user->specializations()->sync($validated['specializations']);
             //} else {
-                //$user->specializations()->sync($request['oldSpecializations']);
+            //$user->specializations()->sync($request['oldSpecializations']);
             //}
 
 

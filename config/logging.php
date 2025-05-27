@@ -117,6 +117,14 @@ return [
         'emergency' => [
             'path' => storage_path('logs/laravel.log'),
         ],
+
+        'telematic' => [
+            'driver' => 'monolog',
+            'handler' => \Monolog\Handler\FilterHandler::class,
+            'with' => [
+                'handler' => new Monolog\Handler\TelegramBotHandler(env('TELEGRAM_BOT_API_KEY'), env('TELEGRAM_CHANNEL'))
+            ]
+        ]
     ],
 
 ];

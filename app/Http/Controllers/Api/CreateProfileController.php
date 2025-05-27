@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
-class CreateController extends Controller
+class CreateProfileController extends Controller
 {
     /**
      * Create a new profile for a user
@@ -28,11 +28,11 @@ class CreateController extends Controller
             $profile->phone = $validated['phone'];
             $profile->office_address = $validated['office_address'];
             $profile->services = $validated['services'];
-            $profile->photo = $validated['photo'];
-            $profile->curriculum = $validated['curriculum'];
 
             if ($request->hasFile('photo')) {
-                $path = $request->file('photo')->store('photos', 'public');
+                $photo = $validated['photo'];
+                $name = $photo->getClientOriginalName();
+                $path = $photo->storeAs('photos', $name, 'public');
                 $profile->photo = $path;
 
                 $photoUrl = asset('storage/' . $path);
@@ -41,7 +41,9 @@ class CreateController extends Controller
             }
 
             if ($request->hasFile('curriculum')) {
-                $path = $request->file('curriculum')->store('curricula', 'public');
+                $curriculum = $validated['curriculum'];
+                $name = $curriculum->getClientOriginalName();
+                $path = $curriculum->storeAs('curricula', $name, 'public');
                 $profile->curriculum = $path;
 
                 $curriculumUrl = asset('storage/' . $path);

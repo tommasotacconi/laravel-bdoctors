@@ -34,7 +34,6 @@ class CreateReviewController extends Controller
                 'message' => 'Message created successfully',
                 'profile' => $newReview
             ], 201);
-
         } catch (\Illuminate\Validation\ValidationException $e) {
             Log::error('Profile creation validation failed', ['errors' => $e->errors()]);
             return response()->json([
@@ -72,7 +71,6 @@ class CreateReviewController extends Controller
                 'string',
                 'email',
                 'max:50',
-                'unique:users',
                 'regex:/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.(com|it|org|net|edu|gov)$/'
             ],
             'content' => ['required', 'string', 'min:5', 'max:300'],
