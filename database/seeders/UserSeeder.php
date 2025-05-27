@@ -18,25 +18,23 @@ class UserSeeder extends Seeder
      */
     public function run(Faker $faker): void
     {
-
         // $specializationIds = Specialization::all()->pluck("id");
 
         for ($i = 0; $i < 250; $i++) {
             $newUser = new User();
             // Create two groups of hanonyms of test
-            if ($i === 10 || $i === 50 || $i === 249) {
-                $newUser->first_name = 'Adriano';
-                $newUser->last_name = 'Carola';
-            } else if ($i === 200 || $i === 210) {
-                $newUser->first_name = 'Serena';
-                $newUser->last_name = 'Pesano';
+            if ($i === 9 || $i === 49 || $i === 249) {
+                $this->makeTestUser($newUser, $faker, $i);
+            } else if ($i === 199) {
+                $this->makeTestUser($newUser, $faker, $i, 'Serena', 'Pesano');
             } else {
                 $newUser->first_name = $faker->firstName();
                 $newUser->last_name = $faker->lastName();
+                $newUser->email = $faker->email();
+                $newUser->password = $faker->password(6, 20);
             }
             //$newUser->specialization_id = $faker->randomElement($specializationIds);
-            $newUser->password = $faker->password(6, 20);
-            $newUser->email = $faker->email();
+
             $newUser->home_address = $faker->streetAddress();
             $newUser->save();
         }
@@ -68,7 +66,6 @@ class UserSeeder extends Seeder
                 else
                     $homonymsGroups[$fullName][] = $homonymous;
             }
-            var_dump($homonymsGroups);
 
             foreach ($homonymsGroups as $group) {
                 foreach ($group as $index =>  $homonymous) {
@@ -77,5 +74,14 @@ class UserSeeder extends Seeder
                 }
             }
         }
+    }
+
+    public function makeTestUser($userInstance, $fakerInstance, $id, $fName = 'Adriano', $lName = 'Carola')
+    {
+        $fName = $userInstance->first_name = $fName;
+        $lName = $userInstance->last_name = $lName;
+        $email = $userInstance->email = $fName . $id . $lName . '@testmail.com';
+        $pswd = $userInstance->password = $fakerInstance->password(6, 20);
+        print_r("  Test user email and password: $email, $pswd\n");
     }
 }
