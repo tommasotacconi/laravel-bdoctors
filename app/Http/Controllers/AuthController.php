@@ -129,6 +129,26 @@ class AuthController extends Controller
         } */
     }
 
+    /**
+     * Check the user authentication status via API
+     *
+     * @return function:void
+     */
+    public function checkLoginStatus()
+    {
+        $user_id = Auth::id();
+        if ($user_id) {
+            return response(['authentication' => [
+                'status' => 'true',
+                'userId' => $user_id
+            ]], 200);
+        }
+
+        return response(['authentication' => [
+            'status' => 'false',
+            'userId' => null
+        ]], 404);
+    }
 
     /**
      * Handle a logout request.

@@ -53,24 +53,6 @@ class CreateProfileController extends Controller
 
             $profile->save();
 
-            if ($request->hasFile('photo')) {
-                $path = $request->file('photo')->store('photos', 'public');
-                $profile->photo = $path;
-
-                $photoUrl = asset('storage/' . $path);
-
-                // return response()->json(['photoUrl' => $photoUrl]);
-            }
-
-            if ($request->hasFile('curriculum')) {
-                $path = $request->file('curriculum')->store('curricula', 'public');
-                $profile->curriculum = $path;
-
-                $curriculumUrl = asset('storage/' . $path);
-
-                // return response()->json(['curriculumUrl' => $curriculumUrl]);
-            }
-
             Log::info('Profile created successfully', ['profile_id' => $profile->id]);
 
             return response()->json([
