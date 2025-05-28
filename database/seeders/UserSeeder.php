@@ -23,7 +23,7 @@ class UserSeeder extends Seeder
         for ($i = 0; $i < 250; $i++) {
             $newUser = new User();
             // Create two groups of hanonyms of test
-            if ($i === 9 || $i === 49 || $i === 249) {
+            if ($i === 10 - 1 || $i === 50 - 1 || $i === 250 - 1) {
                 $this->makeTestUser($newUser, $faker, $i);
             } else if ($i === 199) {
                 $this->makeTestUser($newUser, $faker, $i, 'Serena', 'Pesano');
@@ -80,7 +80,7 @@ class UserSeeder extends Seeder
     {
         $fName = $userInstance->first_name = $fName;
         $lName = $userInstance->last_name = $lName;
-        $email = $userInstance->email = $fName . $id . $lName . '@testmail.com';
+        $email = $userInstance->email = $fName . ++$id . $lName . '@testmail.com';
         $pswd = $userInstance->password = $fakerInstance->password(6, 20);
         print_r("  Test user email and password: $email, $pswd\n");
     }
