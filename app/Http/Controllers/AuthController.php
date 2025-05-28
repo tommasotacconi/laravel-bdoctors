@@ -71,62 +71,12 @@ class AuthController extends Controller
                     'message' => 'Failed authentication: invalid credentials'
                 ], 401);
             }
-
-            /* if (!Auth::attempt($request->only('email', 'password'))) {
-                Log::warning('Failed login attempt', ['email' => $request->email]);
-                return response()->json([
-                    'message' => 'Invalid credentials'
-                ], 401);
-            }
-
-            $user = User::where('email', $request->email)->firstOrFail();
-            $token = $user->createToken('auth-token')->plainTextToken;
-
-            Log::info('User logged in successfully', ['user_id' => $user->id]);
-
-            return response()->json([
-                'message' => 'Login successful',
-                'user' => $user,
-                'token' => $token
-            ]); */
         } catch (\Exception $e) {
             Log::error('Login error', ['error' => $e->getMessage()]);
             return response()->json([
                 'message' => 'An error occurred during login'
             ], 500);
         }
-
-        // Previous validation logic
-        /* $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
-        ]);
-
-        // Verifica che l'utente esista e che la password sia corretta
-        $user = User::where('email', $request->email)->first();
-
-        if (!$user || !Hash::check($request->password, $user->password)) {
-            return response()->json(['message' => 'Unauthorized'], 401);
-        }
-
-        // // Effettua l'autenticazione e crea il token
-        Auth::login($user);
-
-        return response()->json(['message' => 'Logged in successfully']);
-        $credentials = $request->only('email', 'password');
-
-        if (Auth::attempt($credentials)) {
-            $user = Auth::user();
-            // Se usi Laravel Sanctum, puoi generare un token come questo:
-            $token = $user->createToken('YourAppName')->plainTextToken;
-            Auth::login($user);  // Autenticazione tramite sessione
-            return response()->json(['message' => 'Logged in successfully']);
-
-            return response()->json([
-                'message' => 'Logged in successfully',
-                'token' => $token
-            ]);
-        } */
     }
 
     /**
