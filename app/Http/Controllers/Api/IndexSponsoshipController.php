@@ -8,9 +8,10 @@ use Illuminate\Http\Request;
 
 class IndexSponsoshipController extends Controller
 {
-    public function index(){
+    public function index()
+    {
 
-        $sponsorships = Sponsorship::with(['profiles'])->get();
+        $sponsorships = Sponsorship::with(['profiles.user.specializations'])->get();
         return response()->json([
             'success' => true,
             'sponsorships' => $sponsorships
