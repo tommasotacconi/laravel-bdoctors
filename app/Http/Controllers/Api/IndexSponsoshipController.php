@@ -34,18 +34,33 @@ class IndexSponsoshipController extends Controller
             $sponsorship_name = $sponsorshipWithProfiles->name;
             foreach ($sponsorshipWithProfiles->profiles as $profile) {
                 // Add sponsorship name as a new attribute
-                $profile->sponsorship = $sponsorship_name;
-                // Modify visible columns:
-                // -for profiles
-                $profile->makeHidden(['id', 'user_id', 'created_at', 'updated_at', 'pivot.profile_id', 'pivot']);
-                // -for users
-                $profile->user->makeHidden(['id', 'email', 'email_verified_at', 'home_address', 'created_at', 'updated_at']);
-                // -for specializations
-                if ($profile->user->relationLoaded('specializations') && $profile->user->specializations) {
-                    $profile->user->specializations->makeHidden(['id', 'created_at', 'updated_at', 'pivot']);
+                $profile->sponsorships[] = $sponsorship_name;
+                // Consider if the profile is already present by another sponsorship
+                $exist = false;
+                $sameProfile = null;
+                foreach ($profilesInSponsorships as $existingProfile) {
+                    if ($existingProfile->id === $profile->id) {
+                        $exist = true;
+                        $sameProfile = $existingProfile;
+                    }
                 }
+                // Add profile to array if it doesn't exist otherwise simply add the current
+                // sponsorship
+                if (!$exist) {
+                    // Modify visible columns:
+                    // -for profiles
+                    $profile->makeHidden(['id', 'user_id', 'created_at', 'updated_at', 'pivot.profile_id', 'pivot']);
+                    // -for users
+                    $profile->user->makeHidden(['id', 'email', 'email_verified_at', 'home_address', 'created_at', 'updated_at']);
+                    // -for specializations
+                    if ($profile->user->relationLoaded('specializations') && $profile->user->specializations) {
+                        $profile->user->specializations->makeHidden(['id', 'created_at', 'updated_at', 'pivot']);
+                    }
 
-                $profilesInSponsorships[] = $profile;
+                    $profilesInSponsorships[] = $profile;
+                } else {
+                    $sameProfile->sponsorships[] = $sponsorship_name;
+                }
             }
         };
 
