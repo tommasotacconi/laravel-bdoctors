@@ -55,8 +55,10 @@ Route::get('/reviews/filter/{specialization}/{rating?}/{reviews?}', [FilteredSea
 // Messages routes
 Route::get('/messages', [IndexMessageController::class, 'index'])->name('api.messages.index');
 Route::post('/messages', [CreateMessageController::class, 'create'])->name('api.messages.create');
+
 // Sponsorships routes
 Route::get('/sponsorships', [IndexSponsoshipController::class, 'index'])->name('api.sponsorships.index');
+Route::get('/sponsorships/sponsored', [IndexSponsoshipController::class, 'sponsored'])->name('api.sponsorships.sponsored');
 
 // Profiles routes
 Route::get('/profiles/{nameId?}', [IndexProfileController::class, 'index'])->name('api.profiles.index')->where('nameId', '\S+-\S+(-\d+)?');
