@@ -59,6 +59,7 @@ class IndexSponsoshipController extends Controller
 
                     $profilesInSponsorships[] = $profile;
                 } else {
+                    /** @var \App\Models\Profile $sameProfile */
                     $sameProfile->sponsorships[] = $sponsorship_name;
                 }
             }
@@ -84,7 +85,7 @@ class IndexSponsoshipController extends Controller
 
         return response()->json([
             'success' => true,
-            'profilesInSponsorships' => $paginator,
+            'paginated_profiles' => $paginator,
         ]);
     }
 }
