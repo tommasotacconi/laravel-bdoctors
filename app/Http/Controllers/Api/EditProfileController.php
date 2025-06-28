@@ -6,15 +6,18 @@ use App\Models\Profile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 
 class EditProfileController extends Controller
 {
-    public function edit($id)
+    public function edit()
     {
         try {
             // Load profile with user and specializations in a single query
+            $authUserId = Auth::id();
+
             $profile = Profile::with(['user.specializations', 'messages', 'sponsorships'])
-                ->findOrFail($id);
+                ->findOrFail($authUserId);
 
             // Transform the data into a cleaner format
             $responseData = [
@@ -39,21 +42,21 @@ class EditProfileController extends Controller
                 'has_active_sponsorship' => $profile->sponsorships->where('pivot.end_date', '>', now())->isNotEmpty()
             ];
 
-            Log::info('Profile retrieved successfully', ['profile_id' => $id]);
+            Log::info('Profile retrieved successfully', ['profile_id' => $authUserId]);
 
             return response()->json([
                 'success' => true,
                 'data' => $responseData
             ], 200);
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            Log::warning('Profile not found', ['profile_id' => $id]);
+            Log::warning('Profile not found', ['profile_id' => $authUserId]);
             return response()->json([
                 'success' => false,
                 'message' => 'The requested profile could not be found'
             ], 404);
         } catch (\Exception $e) {
             Log::error('Failed to retrieve profile', [
-                'profile_id' => $id,
+                'profile_id' => $authUserId,
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
