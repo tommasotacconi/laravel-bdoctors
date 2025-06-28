@@ -43,7 +43,8 @@ class AuthController extends Controller
             try {
                 $request_full_name = $user->first_name . $user->last_name;
                 $request_pwd = $validated['password'];
-                if ($request_pwd === $user->password) {
+                Log::info("User's password hashed: " . Hash::make($request_pwd) . ', database counterpart: ' . $user->password);
+                if (Hash::check($request_pwd, $user->password)) {
                     Log::info("Authenticated user: $request_full_name, id: {$user->id}");
 
                     // Log in the user and establish the session
