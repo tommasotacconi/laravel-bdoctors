@@ -17,7 +17,7 @@ class EditProfileController extends Controller
             $authUserId = Auth::id();
 
             $profile = Profile::with(['user.specializations', 'messages', 'sponsorships'])
-                ->findOrFail($authUserId);
+                ->where('user_id', $authUserId)->firstOrFail();
 
             // Transform the data into a cleaner format
             $responseData = [
