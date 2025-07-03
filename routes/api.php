@@ -55,18 +55,21 @@ Route::get('/reviews/filter/{specialization}/{rating?}/{reviews?}', [FilteredSea
 // Messages routes
 Route::get('/messages', [IndexMessageController::class, 'index'])->name('api.messages.index');
 Route::post('/messages', [CreateMessageController::class, 'create'])->name('api.messages.create');
+
 // Sponsorships routes
 Route::get('/sponsorships', [IndexSponsoshipController::class, 'index'])->name('api.sponsorships.index');
+Route::get('/sponsorships/sponsored', [IndexSponsoshipController::class, 'sponsored'])->name('api.sponsorships.sponsored');
 
 // Profiles routes
-Route::get('/profiles/{nameId?}', [IndexProfileController::class, 'index'])->name('api.profiles.index')->where('nameId', '\S+-\S+(-\d+)?');
 // -protected
 Route::middleware('auth')->group(function () {
-    Route::get('/profiles/show', [ShowProfileController::class, 'show'])->name('api.profiles.show');
-    Route::post('/profiles/create', [CreateProfileController::class, 'create'])->name('api.profiles.create');
-    Route::get('/profiles/edit/', [EditProfileController::class, 'edit'])->name('api.profiles.edit');
-    Route::post('/profiles/edit/', [UpdateProfileController::class, 'update'])->name('api.profiles.update');
+    Route::get('/profiles', [ShowProfileController::class, 'show'])->name('api.profiles.show');
+    Route::post('/profiles', [CreateProfileController::class, 'create'])->name('api.profiles.create');
+    Route::get('/profiles/edit', [EditProfileController::class, 'edit'])->name('api.profiles.edit');
+    Route::patch('/profiles', [UpdateProfileController::class, 'update'])->name('api.profiles.update');
 });
+// -public
+Route::get('/profiles/{nameId?}', [IndexProfileController::class, 'index'])->name('api.profiles.index')->where('nameId', '\S+-\S+(-\d+)?');
 
 // Protected routes
 Route::middleware('auth:sanctum')->group(function () {

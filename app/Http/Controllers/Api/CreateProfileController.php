@@ -6,6 +6,7 @@ use App\Models\Profile;
 use App\Models\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
@@ -17,14 +18,14 @@ class CreateProfileController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function create(Request $request, string $id)
+    public function create(Request $request)
     {
         try {
             $validated = $this->validateProfileData($request);
 
             $profile = new Profile();
 
-            $profile->user_id = $id;
+            $profile->user_id = Auth::id();
             $profile->phone = $validated['phone'];
             $profile->office_address = $validated['office_address'];
             $profile->services = $validated['services'];
@@ -52,24 +53,6 @@ class CreateProfileController extends Controller
             }
 
             $profile->save();
-
-            if ($request->hasFile('photo')) {
-                $path = $request->file('photo')->store('photos', 'public');
-                $profile->photo = $path;
-
-                $photoUrl = asset('storage/' . $path);
-
-                // return response()->json(['photoUrl' => $photoUrl]);
-            }
-
-            if ($request->hasFile('curriculum')) {
-                $path = $request->file('curriculum')->store('curricula', 'public');
-                $profile->curriculum = $path;
-
-                $curriculumUrl = asset('storage/' . $path);
-
-                // return response()->json(['curriculumUrl' => $curriculumUrl]);
-            }
 
             Log::info('Profile created successfully', ['profile_id' => $profile->id]);
 
@@ -106,7 +89,6 @@ class CreateProfileController extends Controller
     private function validateProfileData(Request $request)
     {
         return $request->validate([
-            'user_id' => ['required', 'exists:users,id'],
             'curriculum' => ['required', 'file', 'mimes:jpeg,png,jpg,pdf', 'max:2048'],
             'photo' => ['required', 'image', 'mimes:jpeg,png,jpg', 'max:2048'],
             'office_address' => ['required', 'string', 'max:100'],

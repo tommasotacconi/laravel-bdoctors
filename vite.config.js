@@ -23,7 +23,7 @@ export default defineConfig({
         port: 5174, // Frontend server port
         cors: {
             origin: 'http://localhost:5173', // Allow requests from your frontend
-            methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Allowed HTTP methods
+            methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'], // Allowed HTTP methods
             allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization'], // Allowed headers
             credentials: true, // Allow cookies and credentials
         },

@@ -24,7 +24,7 @@ class UserSeeder extends Seeder
         for ($i = 0; $i < 250; $i++) {
             $newUser = new User();
             // Create two groups of hanonyms of test
-            if ($i === 9 || $i === 49 || $i === 249) {
+            if ($i === 10 - 1 || $i === 50 - 1 || $i === 250 - 1) {
                 $this->makeTestUser($newUser, $faker, $i);
             } else if ($i === 199) {
                 $this->makeTestUser($newUser, $faker, $i, 'Serena', 'Pesano');
@@ -32,7 +32,7 @@ class UserSeeder extends Seeder
                 $newUser->first_name = $faker->firstName();
                 $newUser->last_name = $faker->lastName();
                 $newUser->email = $faker->email();
-                $newUser->password = $faker->password(6, 20);
+                $newUser->password = Hash::make($faker->password(6, 20));
             }
             //$newUser->specialization_id = $faker->randomElement($specializationIds);
 

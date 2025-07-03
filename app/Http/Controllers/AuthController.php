@@ -19,8 +19,87 @@ class AuthController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function login(Request $request) {}
+    public function login(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'email' => ['required', 'string', 'email'],
+                'password' => ['required', 'string'],
+            ]);
 
+            if ($validator->fails()) {
+                Log::error('Login validation failed', ['errors' => $validator->errors()]);
+                return response()->json([
+                    'message' => 'Validation failed',
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+
+            $validated = $validator->validated();
+
+            // Cerca l'utente con l'email fornita
+            $user = User::where('email', $validated['email'])->first();
+
+            try {
+                $request_full_name = $user->first_name . $user->last_name;
+                $request_pwd = $validated['password'];
+                Log::info("User's password hashed: " . Hash::make($request_pwd) . ', database counterpart: ' . $user->password);
+                if (Hash::check($request_pwd, $user->password)) {
+                    Log::info("Authenticated user: $request_full_name, id: {$user->id}");
+
+                    // Log in the user and establish the session
+                    Auth::login($user, $remember = true);
+
+                    // Regenerate the session to prevent session fixation attacks
+                    $request->session()->regenerate();
+
+                    // Retrieve related profile_id if present
+                    // $profile_id = Profile::select('id')->where('user_id', $user->id)->get();
+
+                    return response()->json([
+                        'message' => 'User authenticated',
+                        /* 'user' => [
+                            'id' => $user->id,
+                            'profile_id' => $profile_id[0]->id,
+                        ] */
+                    ]);
+                } else {
+                    throw new Exception('invalid password');
+                }
+            } catch (Exception $e) {
+                Log::info("Failed authentication: invalid credentials ({$e->getMessage()})");
+                return response()->json([
+                    'message' => 'Failed authentication: invalid credentials'
+                ], 401);
+            }
+        } catch (\Exception $e) {
+            Log::error('Login error', ['error' => $e->getMessage()]);
+            return response()->json([
+                'message' => 'An error occurred during login'
+            ], 500);
+        }
+    }
+
+    /**
+     * Check the user authentication status via API
+     *
+     * @return function:void
+     */
+    public function checkLoginStatus()
+    {
+        $user_id = Auth::id();
+        if ($user_id) {
+            return response(['authentication' => [
+                'status' => 'true',
+                'userId' => $user_id
+            ]], 200);
+        }
+
+        return response(['authentication' => [
+            'status' => 'false',
+            'userId' => null
+        ]], 404);
+    }
 
     /**
      * Handle a logout request.
