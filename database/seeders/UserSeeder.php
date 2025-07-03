@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\Specialization;
 use Faker\Generator as Faker;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 //use Faker\Provider\it_IT as Faker;
 
@@ -80,15 +81,9 @@ class UserSeeder extends Seeder
     {
         $fName = $userInstance->first_name = $fName;
         $lName = $userInstance->last_name = $lName;
-<<<<<<< Updated upstream
-        $email = $userInstance->email = $fName . $id . $lName . '@testmail.com';
-        $pswd = $userInstance->password = $fakerInstance->password(6, 20);
-        print_r("  Test user email and password: $email, $pswd\n");
-=======
         $email = $userInstance->email = $fName . ++$id . $lName . '@testmail.com';
         $pwd = $fakerInstance->password(6, 20);
         $userInstance->password = Hash::make($pwd);
         file_put_contents('test-users.txt', print_r("  Test user email and password: $email, $pwd\n", true), FILE_APPEND);
->>>>>>> Stashed changes
     }
 }
