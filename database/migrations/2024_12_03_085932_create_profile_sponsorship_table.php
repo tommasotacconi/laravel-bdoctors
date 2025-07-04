@@ -14,11 +14,11 @@ return new class extends Migration
         Schema::disableForeignKeyConstraints();
 
         Schema::create('profile_sponsorship', function (Blueprint $table) {
+            $table->id();
             $table->foreignId('profile_id')->constrained()->onDelete('cascade');
             $table->foreignId('sponsorship_id')->constrained()->onDelete('cascade');
             $table->dateTime('start_date');
             $table->dateTime('end_date');
-            $table->primary(['profile_id', 'sponsorship_id']);
             $table->timestamps();
         });
 

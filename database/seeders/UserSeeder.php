@@ -6,6 +6,7 @@ use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\User;
 use App\Models\Specialization;
+use Carbon\Carbon;
 use Faker\Generator as Faker;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -33,6 +34,7 @@ class UserSeeder extends Seeder
                 $newUser->last_name = $faker->lastName();
                 $newUser->email = $faker->email();
                 $newUser->password = Hash::make($faker->password(6, 20));
+                $newUser->created_at = Carbon::create(2024, 1, 1, 0);
             }
             //$newUser->specialization_id = $faker->randomElement($specializationIds);
 
@@ -84,6 +86,7 @@ class UserSeeder extends Seeder
         $email = $userInstance->email = $fName . ++$id . $lName . '@testmail.com';
         $pwd = $fakerInstance->password(6, 20);
         $userInstance->password = Hash::make($pwd);
+        $userInstance->created_at = Carbon::create(2024, 1, 1, 0);
         file_put_contents('test-users.txt', print_r("  Test user email and password: $email, $pwd\n", true), FILE_APPEND);
     }
 }
