@@ -15,31 +15,34 @@ class SponsorshipSeeder extends Seeder
     {
         $sponsorships = [
             [
-                'name'=>'Bronze',
-                'duration'=>24,
-                'price'=>2,99,
-                'description'=>''
+                'name' => 'Bronze',
+                'duration' => 24,
+                'price' => 2,
+                99,
+                'description' => 'Sponsorizzazione di base di un giorno'
             ],
             [
-                'name'=>'Silver',
-                'duration'=>48,
-                'price'=>5,99,
-                'description'=>''
+                'name' => 'Silver',
+                'duration' => 72,
+                'price' => 5,
+                99,
+                'description' => 'Sponsorizzazione intermedia di tre giorni'
             ],
             [
-                'name'=>'Gold',
-                'duration'=>144,
-                'price'=>9,99,
-                'description'=>''
+                'name' => 'Gold',
+                'duration' => 144,
+                'price' => 9,
+                99,
+                'description' => 'Sponsorizzazione più lunga della duarata di sei giorni'
             ]
         ];
 
-        foreach($sponsorships as $singlesponsor) {
+        foreach ($sponsorships as $singlesponsor) {
             $newSponsorship = new Sponsorship();
             $newSponsorship->name = $singlesponsor['name'];
             $newSponsorship->duration = $singlesponsor['duration'];
             $newSponsorship->price = $singlesponsor['price'];
-            $newSponsorship->description = $faker->realTextBetween(20,80);
+            $newSponsorship->description = $singlesponsor['description'];
             $newSponsorship->save();
         }
     }
