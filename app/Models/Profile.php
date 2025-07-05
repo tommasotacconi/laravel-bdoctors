@@ -18,19 +18,23 @@ class Profile extends Model
         'services'
     ];
 
-    public function user(){
+    public function user()
+    {
         return $this->belongsTo(User::class);
     }
 
-    public function messages(){
+    public function messages()
+    {
         return $this->hasMany(Message::class);
     }
 
-    public function reviews(){
+    public function reviews()
+    {
         return $this->hasMany(Review::class);
     }
 
-    public function sponsorships(){
-        return $this->belongsToMany(Sponsorship::class);
+    public function sponsorships()
+    {
+        return $this->belongsToMany(Sponsorship::class)->withPivot(['start_date', 'end_date']);
     }
 }

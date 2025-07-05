@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Models\Profile;
 use App\Models\User;
 use App\Http\Controllers\Controller;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -29,6 +30,8 @@ class ShowProfileController extends Controller
             $profile = Profile::with(['user.specializations', 'messages', 'sponsorships'])
                 ->where('user_id', $authenticatedUserId)->firstOrFail();
 
+            $sponsorshipsHistory = $profile->sponsorships();
+
             // Transform the data into a cleaner format
             $responseData = [
                 'id' => $profile->id,
@@ -49,7 +52,10 @@ class ShowProfileController extends Controller
                         ];
                     })
                 ],
-                'has_active_sponsorship' => $profile->sponsorships->where('pivot.end_date', '>', now())->isNotEmpty()
+                'active_sponsorships' => $sponsorshipsHistory
+                    ->wherePivot('start_date', '<', env('APP_TIME'))
+                    ->wherePivot('end_date', '>', env('APP_TIME'))
+                    ->get(),
             ];
 
             Log::info('Profile retrieved successfully', ['profile_id' => $authenticatedUserId]);
