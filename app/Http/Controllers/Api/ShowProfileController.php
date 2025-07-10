@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Helpers\TimeHelper;
 use App\Models\Profile;
 use App\Models\User;
 use App\Http\Controllers\Controller;
@@ -29,8 +30,8 @@ class ShowProfileController extends Controller
             // Load profile with user and specializations in a single query
             $profile = Profile::with(['user.specializations', 'messages', 'sponsorships'])
                 ->where('user_id', $authenticatedUserId)->firstOrFail();
-
-            $sponsorshipsHistory = $profile->sponsorships();
+            $sponsorshipsRelation = $profile->sponsorships();
+            $computedTime = TimeHelper::computeAppTime(false);
 
             // Transform the data into a cleaner format
             $responseData = [
@@ -52,9 +53,10 @@ class ShowProfileController extends Controller
                         ];
                     })
                 ],
-                'active_sponsorships' => $sponsorshipsHistory
-                    ->wherePivot('start_date', '<', env('APP_TIME'))
-                    ->wherePivot('end_date', '>', env('APP_TIME'))
+                'active_sponsorships' => $sponsorshipsRelation
+                    ->wherePivot('start_date', '<', $computedTime)
+                    ->wherePivot('end_date', '>', $computedTime)
+                    ->orderByDesc('start_date')
                     ->get(),
             ];
 
