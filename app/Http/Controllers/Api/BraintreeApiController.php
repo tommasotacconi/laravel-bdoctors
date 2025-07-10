@@ -2,9 +2,15 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Helpers\TimeHelper;
 use Braintree\Gateway;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Models\Profile;
+use App\Models\Sponsorship;
+use Carbon\Carbon;
+use Carbon\CarbonImmutable;
+use Illuminate\Support\Facades\Auth;
 
 class BraintreeApiController extends Controller
 {
@@ -38,6 +44,17 @@ class BraintreeApiController extends Controller
             ]);
 
             if ($result->success) {
+                // Activate sponsorship on authorized user
+                $authenticatedUserId = Auth::id();
+                $sponsorshipName = $request->sponsorshipName;
+                $sponsorship = Sponsorship::where('name', $sponsorshipName)->first();
+                Profile::where('user_id', $authenticatedUserId)->first()
+                    ->sponsorships()->attach($sponsorship->id, [
+                        'start_date' => $computedTime = TimeHelper::computeAppTime(false),
+                        'end_date' => $computedTime->addHours($sponsorship->duration),
+                        'created_at' => $computedTime
+                    ]);
+
                 return response()->json([
                     'success' => true,
                     'transaction' => [
