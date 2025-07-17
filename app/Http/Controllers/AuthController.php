@@ -91,13 +91,11 @@ class AuthController extends Controller
         if ($user_id) {
             return response(['authentication' => [
                 'status' => 'true',
-                'userId' => $user_id
             ]], 200);
         }
 
         return response(['authentication' => [
             'status' => 'false',
-            'userId' => null
         ]], 404);
     }
 
