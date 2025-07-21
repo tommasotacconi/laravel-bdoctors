@@ -14,7 +14,7 @@ class IndexMessageController extends Controller
     {
         $authenticatedUserId = Auth::id();
         $authenticatedUserProfileId = Profile::where('user_id', $authenticatedUserId)->firstOrFail()->id;
-        $messages = Message::where('profile_id', $authenticatedUserProfileId)->with(['profiles'])->get();
+        $messages = Message::where('profile_id', $authenticatedUserProfileId)->orderByDesc('created_at')->get();
         //$messages = Message::all();
         //dd($messages);
         return response()->json([

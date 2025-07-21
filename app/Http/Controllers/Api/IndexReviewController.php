@@ -15,7 +15,7 @@ class IndexReviewController extends Controller
 
         $authenticatedUserId = Auth::id();
         $authenticatedUserProfileId = Profile::where('user_id', $authenticatedUserId)->firstOrFail()->id;
-        $reviews = Review::where('profile_id', $authenticatedUserProfileId)->with(['profiles'])->get();
+        $reviews = Review::where('profile_id', $authenticatedUserProfileId)->orderByDesc('created_at')->get();
         //dd($reviews);
         return response()->json([
             'success' => true,

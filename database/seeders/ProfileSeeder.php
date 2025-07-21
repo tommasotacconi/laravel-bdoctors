@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Profile;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Faker\Generator as Faker;
@@ -24,20 +25,20 @@ class ProfileSeeder extends Seeder
             $imgUrls[] = $img['urls']['small'];
         }
 
-        $userIds = User::all()->pluck("id");
+        $userData = User::all()->pluck("created_at", "id");
 
-        foreach ($userIds as $userId) {
+        foreach ($userData as $userId => $createdAt) {
             $newProfile = new Profile();
             $newProfile->user_id = $userId;
             $newProfile->curriculum = $faker->realTextBetween(200, 1000);
-            if (in_array($userId, [9, 49, 199, 249])) {
+            if (in_array($userId, [10, 50, 200, 250])) {
                 $imgUrlsLastIndex = count($imgUrls) - 1;
                 $newProfile->photo = $imgUrls[rand(0, $imgUrlsLastIndex)];
-            } else
-                $newProfile->photo = $faker->imageUrl();
+            }
             $newProfile->office_address = $faker->streetAddress();
             $newProfile->phone = $faker->phoneNumber();
             $newProfile->services = $faker->realTextBetween(30, 100);
+            $newProfile->updated_at = $newProfile->created_at = Carbon::parse($createdAt)->addDays(rand(1, 30));
             $newProfile->save();
         }
     }
