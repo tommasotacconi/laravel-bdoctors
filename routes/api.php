@@ -59,16 +59,8 @@ Route::post('/messages', [CreateMessageController::class, 'create'])->name('api.
 Route::get('/sponsorships', [IndexSponsoshipController::class, 'index'])->name('api.sponsorships.index');
 
 // Profiles routes
-Route::get('/profiles/{nameId?}', [IndexProfileController::class, 'index'])->name('api.profiles.index')->where('nameId', '\S+-\S+(-\d+)?');
 // -protected
 Route::middleware('auth')->group(function () {
-<<<<<<< Updated upstream
-    Route::get('/profiles/show', [ShowProfileController::class, 'show'])->name('api.profiles.show');
-    Route::post('/profiles/create', [CreateProfileController::class, 'create'])->name('api.profiles.create');
-    Route::get('/profiles/edit/', [EditProfileController::class, 'edit'])->name('api.profiles.edit');
-    Route::post('/profiles/edit/', [UpdateProfileController::class, 'update'])->name('api.profiles.update');
-});
-=======
     Route::post('/profiles', [CreateProfileController::class, 'create'])->name('api.profiles.create');
     Route::get('/profiles/edit', [EditProfileController::class, 'edit'])->name('api.profiles.edit');
     Route::patch('/profiles', [UpdateProfileController::class, 'update'])->name('api.profiles.update');
@@ -76,7 +68,6 @@ Route::middleware('auth')->group(function () {
 // -public
 Route::get('/profiles', [IndexProfileController::class, 'index'])->name('api.profiles.index');
 Route::get('/profiles/{name}', [ShowProfileController::class, 'show'])->name('api.profiles.show');
->>>>>>> Stashed changes
 
 // Protected routes
 Route::middleware('auth:sanctum')->group(function () {
