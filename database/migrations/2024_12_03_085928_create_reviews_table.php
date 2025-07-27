@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('reviews', function (Blueprint $table) {
             $table->id();
             $table->foreignId('profile_id')->constrained()->onDelete('cascade');
-            $table->tinyInteger('votes');
+            $table->tinyInteger('vote');
             $table->text('content');
             $table->string('email', 50);
             $table->string('first_name', 50);

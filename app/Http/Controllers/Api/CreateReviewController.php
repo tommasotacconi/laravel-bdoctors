@@ -28,7 +28,7 @@ class CreateReviewController extends Controller
             $newReview->email = $validated['email'];
             $newReview->first_name = $validated['first_name'];
             $newReview->last_name = $validated['last_name'];
-            $newReview->votes = $validated['votes'];
+            $newReview->vote = $validated['vote'];
             $newReview->save();
 
             Log::info('Review created successfully', ['review_id' => $newReview->id]);

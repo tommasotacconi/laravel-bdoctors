@@ -19,13 +19,13 @@ class ReviewSeeder extends Seeder
     {
         $profileIds = Profile::all()->pluck("id");
 
-        foreach($profileIds as $profileId) {
+        foreach ($profileIds as $profileId) {
 
-            for($i = 0 ; $i < ($faker->numberBetween(20, 40)); $i++) {
+            for ($i = 0; $i < ($faker->numberBetween(20, 40)); $i++) {
                 $newReview = new Review();
                 $newReview->profile_id = $profileId;
-                $newReview->votes = $faker->numberBetween(1,5);
-                $newReview->content = $faker->realText(rand(50,150));
+                $newReview->vote = $faker->numberBetween(1, 5);
+                $newReview->content = $faker->realText(rand(50, 150));
                 $newReview->email = $faker->email();
                 $newReview->first_name = $faker->firstName();
                 $newReview->last_name = $faker->lastName();
@@ -42,7 +42,5 @@ class ReviewSeeder extends Seeder
                 $newReview->save();
             }
         }
-
-
     }
 }

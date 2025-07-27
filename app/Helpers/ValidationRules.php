@@ -36,7 +36,7 @@ class ValidationRules
         return array_merge(
             self::$user,
             self::$messageReviewSharedInputs,
-            ['votes' => ['required', 'integer', 'numeric', 'min:0', 'max:5']]
+            ['vote' => ['required', 'integer', 'numeric', 'min:0', 'max:5']]
         );
     }
 }
