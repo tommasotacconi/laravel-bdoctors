@@ -35,7 +35,7 @@ class FilteredSearchController extends Controller
                 Log::info('Filtering reviews for specialization: ' . $query->get());
             } catch (Exception $e) {
                 //throw $th;
-                return response()->json(['Error' => ['message' => $e->getMessage()]]);
+                return response()->json(['Error' => ['message' => $e->getMessage()]], 404);
             }
 
             $query = Profile::select('profiles.*', 'specializations.id as specializations_id', 'specializations.name as specialization_name')
@@ -50,15 +50,15 @@ class FilteredSearchController extends Controller
                 ->groupBy('profiles.id', 'users.id', 'specializations.id')->with(['user', 'user.specializations']);
 
             $query->selectRaw(
-                'CEIL(AVG(reviews.votes)) AS media_voti, COALESCE(COUNT(reviews.id), 0) AS totalReviews'
+                'ROUND(AVG(reviews.votes), 0) AS avg_vote, COALESCE(COUNT(reviews.id), 0) AS total_reviews'
             );
 
             if ($rating !== null) {
-                $query->havingRaw('COALESCE(AVG(reviews.votes), 0) >= ?', [$rating]);
+                $query->havingRaw('avg_vote >= ?', [$rating]);
             }
 
             if ($reviews !== null) {
-                $query->havingRaw('COALESCE(COUNT(reviews.id), 0) >= ?', [$reviews]);
+                $query->havingRaw('total_reviews >= ?', [$reviews]);
             }
         }
         $users = $query->get();
