@@ -50,7 +50,7 @@ class FilteredSearchController extends Controller
                 ->groupBy('profiles.id', 'users.id', 'specializations.id')->with(['user', 'user.specializations']);
 
             $query->selectRaw(
-                'ROUND(AVG(reviews.votes), 0) AS avg_vote, COALESCE(COUNT(reviews.id), 0) AS total_reviews'
+                'ROUND(AVG(reviews.vote), 0) AS avg_vote, COALESCE(COUNT(reviews.id), 0) AS total_reviews'
             );
 
             if ($rating !== null) {
