@@ -24,8 +24,10 @@ class ShowProfileController extends Controller
         $userId = '';
         if ($name === 'authenticated') {
             $authenticatedUserId = Auth::id();
+
             if (!$authenticatedUserId)
-                return response()->json(['message' => 'Unauthorized rquest'], 401);
+                return response()->json(['message' => 'Unauthorized request'], 401);
+
             $userId = $authenticatedUserId;
             Log::info('Authenticated user of id ' . $authenticatedUserId . ' is accessing');
         } else {
@@ -33,8 +35,10 @@ class ShowProfileController extends Controller
             $firstName = $nameElements[0];
             $lastName = $nameElements[1];
             $homonymousId = null;
+
             if (count($nameElements) === 3)
                 $homonymousId = $nameElements[2];
+
             $requestedUser = User::where([
                 ['first_name', $firstName],
                 ['last_name', $lastName],
