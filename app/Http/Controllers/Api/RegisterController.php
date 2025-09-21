@@ -30,7 +30,6 @@ class RegisterController extends Controller
             Log::info('User registered successfully', ['user_id' => $user->id]);
 
             return $this->successResponse($user, $token);
-
         } catch (\Illuminate\Validation\ValidationException $e) {
             Log::error('Registration validation failed', ['errors' => $e->errors()]);
             return response()->json([
@@ -71,8 +70,8 @@ class RegisterController extends Controller
                 'unique:users',
                 'regex:/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.(com|it|org|net|edu|gov)$/'
             ],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
-            'specialization_id' => ['required', 'exists:specializations,id'],
+            'password' => ['required', 'string', 'min:8'],
+            'specializations_id' => ['required', 'exists:specializations,id'],
         ]);
     }
 
@@ -99,7 +98,7 @@ class RegisterController extends Controller
             throw new \Exception('Failed to create user');
         }
 
-        $user->specializations()->attach($data['specialization_id']);
+        $user->specializations()->attach($data['specializations_id']);
 
         $user->load('specializations');
 
