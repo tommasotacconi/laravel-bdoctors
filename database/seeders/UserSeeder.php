@@ -27,7 +27,7 @@ class UserSeeder extends Seeder
             // Create two groups of hanonyms of test
             if ($i === 10 - 1 || $i === 50 - 1 || $i === 250 - 1) {
                 $this->makeTestUser($newUser, $faker, $i);
-            } else if ($i === 199) {
+            } else if ($i === 200 - 1 || $i === 249 - 1) {
                 $this->makeTestUser($newUser, $faker, $i, 'Serena', 'Pesano');
             } else {
                 $newUser->first_name = $faker->firstName();
@@ -73,7 +73,7 @@ class UserSeeder extends Seeder
             foreach ($homonymsGroups as $group) {
                 foreach ($group as $index =>  $homonymous) {
                     $userWithHomonyms = User::findOrFail($homonymous->id);
-                    $userWithHomonyms->update(['homonymous_id' => $index]);
+                    $userWithHomonyms->update(['homonymous_id' => $index + 1]);
                 }
             }
         }
