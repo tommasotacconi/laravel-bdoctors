@@ -44,13 +44,11 @@ class UserSeeder extends Seeder
 
         /* Check homonyms and assing them `homonymous_id` */
         $homonyms = DB::select("
-            SELECT `homonymousName1` full_name, `id1` id
+            SELECT `homonymousName2` full_name, `id2` id
             FROM (
                 SELECT
-                    CONCAT(A.`first_name`, A.`last_name`) AS homonymousName1,
-                    A.`id` AS id1,
-                    CONCAT(B.`first_name`, B.`last_name`) AS homonymousName2,
-                    B.`id` AS id2
+                    CONCAT(A.`first_name`, A.`last_name`) AS homonymousName1, A.`id` AS id1,
+                    CONCAT(B.`first_name`, B.`last_name`) AS homonymousName2, B.`id` AS id2
                 FROM `users` A, `users` B
                 WHERE A.`id` <> B.`id`
                 AND CONCAT(A.`first_name`, A.`last_name`) = CONCAT(B.`first_name`, B.`last_name`)
