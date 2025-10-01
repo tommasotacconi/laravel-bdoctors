@@ -45,7 +45,7 @@ class FilteredSearchController extends Controller
                 // sponsorship
                 // ->join('profile_sponsorship', 'profiles.id', '=', 'profile_sponsorship.profile_id')
                 // ->join('sponsorships', 'sponsorships.id', '=', 'profile_sponsorship.sponsorship_id')
-                ->join('reviews', 'profiles.id', '=', 'reviews.profile_id')
+                ->leftJoin('reviews', 'profiles.id', '=', 'reviews.profile_id')
                 ->where('specializations.name', '=', $specialization)
                 ->groupBy('profiles.id', 'users.id', 'specializations.id')->with(['user', 'user.specializations']);
 
@@ -53,11 +53,11 @@ class FilteredSearchController extends Controller
                 'ROUND(AVG(reviews.vote), 0) AS avg_vote, COALESCE(COUNT(reviews.id), 0) AS total_reviews'
             );
 
-            if ($rating !== null) {
+            if ($rating !== null && $rating !== "null") {
                 $query->havingRaw('avg_vote >= ?', [$rating]);
             }
 
-            if ($reviews !== null) {
+            if ($reviews !== null && $reviews !== "null") {
                 $query->havingRaw('total_reviews >= ?', [$reviews]);
             }
         }
