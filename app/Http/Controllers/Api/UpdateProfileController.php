@@ -5,9 +5,14 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Profile;
 use App\Models\User;
+use Illuminate\Auth\Events\Validated;
+use Illuminate\Database\Eloquent\Casts\Json;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\ValidatedInput;
 
 class UpdateProfileController extends Controller
 {
@@ -15,74 +20,17 @@ class UpdateProfileController extends Controller
     {
         try {
             $validated = $this->validateProfileData($request);
-
             $profile = Profile::with('user.specializations')->where('user_id', Auth::id())->first();
 
-            // $user = User::with('specializations')->findOrFail($id);
-            //$newSpecializations = $request['specializations'];
+            $this->updateSingleModel($profile->user, $validated, $request);
+            $this->updateSingleModel($profile, $validated, $request);
 
-            $specNuove = $validated['specializations'];
-            $specVecchie = $profile->user->specializations;
-
-            //if (count($validated['specializations']) == 0) {
-            $profile->user->specializations()->sync($validated['specializations']);
-            //} else {
-            //$user->specializations()->sync($request['oldSpecializations']);
-            //}
-
-
-            //$user->load('specializations');
-
-            // Updating the relation with users-specializations
-            // $user = User::findOrFail($id);
-            // $newSpecializations = $request['specializations'];
-            // foreach($newSpecializations as $singleSpec) {
-            //     $user->specializations()->attach($singleSpec['id']);
-            //     $user->load('specializations');
-            // }
-            //$user->specializations()->attach($request['specializations[0]']);
-            //$user->load('specializations');
-
-
-            $profile->phone = $validated['phone'];
-            $profile->office_address = $validated['office_address'];
-            $profile->services = $validated['services'];
-
-            if ($request->hasFile('photo')) {
-                $photo = $validated['photo'];
-                $name = $photo->getClientOriginalName();
-                $path = $photo->storeAs('photos', $name, 'public');
-                $profile->photo = $path;
-
-                $photoUrl = asset('storage/' . $path);
-
-                // return response()->json(['photoUrl' => $photoUrl]);
-            }
-
-            if ($request->hasFile('curriculum')) {
-                $curriculum = $request->file('curriculum');
-                $name = $curriculum->getClientOriginalName();
-                $path = $curriculum->storeAs('curricula', $name, 'public');
-                $profile->curriculum = $path;
-
-                $curriculumUrl = asset('storage/' . $path);
-
-                // return response()->json(['curriculumUrl' => $curriculumUrl]);
-            }
-
-            $profile->save();
-
-            // return back()->with('success', 'Profilo aggiornato con successo!');
-
+            $profile->load('user.specializations');
             Log::info('Profile updated successfully', ['profile_id' => $profile->id]);
 
             return response()->json([
                 'message' => 'Profile updated successfully',
-                'profile' => $profile,
-                //'specializations' => $newSpecializations,
-                'user' => $profile->user,
-                'specNuove' => $specNuove,
-                'specVecchie' => $specVecchie
+                'profile_with_user' => $profile,
             ], 201);
         } catch (\Illuminate\Validation\ValidationException $e) {
             Log::error('Profile update validation failed', ['errors' => $e->errors()]);
@@ -106,21 +54,71 @@ class UpdateProfileController extends Controller
 
     /**
      * Validate profile data
-     * daaaaaaaai
+     *
      * @param Request $request
      * @return array
      * @throws \Illuminate\Validation\ValidationException
      */
-    private function validateProfileData(Request $request)
+    private function validateProfileData(Request $request): array
     {
         return $request->validate([
-            // 'user_id' => ['required', 'exists:users,id'],
-            'curriculum' => ['nullable', 'file', 'mimes:jpeg,png,jpg,pdf,string', 'max:2048'],
+            'first_name' => ['string', 'max:50'],
+            'last_name' => ['string', 'max:50'],
+            'home_address' => ['string', 'max:100'],
+            'specializations_id.*.id' => ['exists:specializations,id'],
+            'office_address' => ['string', 'max:100'],
+            'phone' => ['string', 'max:20'],
+            'services' => ['string', 'min:5', 'max:100'],
             'photo' => ['nullable', 'image', 'mimes:jpeg,png,jpg,url', 'max:2048'],
-            'office_address' => ['required', 'string', 'max:100'],
-            'phone' => ['required', 'string', 'max:20'],
-            'services' => ['required', 'string', 'min:5', 'max:100'],
-            'specializations' => ['exists:specializations,id'],
+            'curriculum' => ['nullable', 'file', 'mimes:jpeg,png,jpg,pdf,string', 'max:2048'],
         ]);
+    }
+
+    /**
+     * Upate the passed model
+     *
+     * @param Model $model
+     * @param array $validated
+     * @param Request $req
+     * @return void
+     */
+    private function updateSingleModel(Model $model, array $validated, Request $req)
+    {
+        $modelCols =  \Schema::getColumnListing($model->getTable());
+        $modelCols = array_diff($modelCols, ['id', 'created_at', 'updated_at']);
+
+        foreach ($validated as $key => $value) {
+            if (!in_array($key, $modelCols) && $key !== 'specializations_id') continue;
+
+            switch ($key) {
+                case 'photo':
+                    if ($req->hasFile('photo')) $this->handleFileUpload($value, $key, $key . 's',  $model);
+                    break;
+
+                case 'curriculum':
+                    if ($req->hasFile('curriculum')) $this->handleFileUpload($value, $key, 'curricula', $model);
+                    break;
+
+                case 'specializations_id':
+                    if (method_exists($model, 'specializations')) {
+                        $updatedSpecIds = array_map(fn($el) => $el['id'], $value);
+                        $model->specializations()->sync($updatedSpecIds);
+                    }
+                    break;
+
+                default:
+                    $model->$key = $value;
+            }
+        }
+
+
+        $model->save();
+    }
+
+    private function handleFileUpload(UploadedFile $file, string $fileName, string $dbDirectory, Model $model): void
+    {
+        $name = $file->getClientOriginalName();
+        $path = $file->storeAs($dbDirectory, $name, 'public');
+        $model->$fileName = $path;
     }
 }
