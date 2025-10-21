@@ -6,10 +6,12 @@ use App\Helpers\TimeHelper;
 use App\Models\Profile;
 use App\Models\User;
 use App\Http\Controllers\Controller;
+use App\Models\Sponsorship;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Mockery\Undefined;
 
 class ShowProfileController extends Controller
 {
@@ -50,36 +52,20 @@ class ShowProfileController extends Controller
 
         try {
             // Load profile with user and specializations in a single query
-            $profile = Profile::with(['user.specializations', 'messages', 'sponsorships'])
+            $profile = Profile::with(['user.specializations', /* 'reviews' */])
                 ->where('user_id', $userId)->firstOrFail();
-            $sponsorshipsRelation = $profile->sponsorships();
-            $computedTime = TimeHelper::computeAppTime(false);
 
             // Transform the data into a cleaner format
             $responseData = [
-                'id' => $profile->id,
-                'curriculum' => $profile->curriculum,
-                'photo' => $profile->photo,
-                'office_address' => $profile->office_address,
-                'phone' => $profile->phone,
-                'services' => $profile->services,
+                ...$profile->toArray(),
                 'user' => [
-                    'id' => $profile->user->id,
-                    'first_name' => $profile->user->first_name,
-                    'last_name' => $profile->user->last_name,
-                    'email' => $profile->user->email,
-                    'specializations' => $profile->user->specializations->map(function ($spec) {
-                        return [
-                            'id' => $spec->id,
-                            'name' => $spec->name
-                        ];
-                    })
+                    ...$profile->user->toArray(),
+                    'specializations' => $profile->user->specializations->makeHidden(['created_at', 'updated_at'])
                 ],
-                'active_sponsorships' => $sponsorshipsRelation
-                    ->wherePivot('start_date', '<', $computedTime)
-                    ->wherePivot('end_date', '>', $computedTime)
-                    ->orderByDesc('start_date')
-                    ->get(),
+                'active_sponsorship' => [
+                    ...$profile->activeSponsorship()->toArray(),
+                    'pivot' => $profile->activeSponsorship()->pivot->makeHidden('profile_id')
+                ]
             ];
 
             Log::info('Profile retrieved successfully', ['profile_id' => $userId]);
@@ -90,8 +76,14 @@ class ShowProfileController extends Controller
             ], 200);
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             Log::warning('Profile not found', ['name_param' => $name]);
+            $user = User::findOrFail($userId);
+
             return response()->json([
                 'success' => false,
+                'user' => [
+                    'first_name' => $user->first_name,
+                    'last_name' => $user->last_name
+                ],
                 'message' => 'The requested profile could not be found'
             ], 404);
         } catch (\Exception $e) {

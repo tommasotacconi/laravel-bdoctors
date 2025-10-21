@@ -16,30 +16,20 @@ class EditProfileController extends Controller
             // Load profile with user and specializations in a single query
             $authUserId = Auth::id();
 
-            $profile = Profile::with(['user.specializations', 'messages', 'sponsorships'])
+            $profile = Profile::with(['user.specializations'])
                 ->where('user_id', $authUserId)->firstOrFail();
 
             // Transform the data into a cleaner format
+            $photo_name = explode('/', $profile->photo)[1];
+            $curriculum_name = explode('/', $profile->curriculum)[1];
             $responseData = [
-                'id' => $profile->id,
-                'curriculum' => $profile->curriculum,
-                'photo' => $profile->photo,
-                'office_address' => $profile->office_address,
-                'phone' => $profile->phone,
-                'services' => $profile->services,
+                'photo' => $photo_name,
+                'curriculum' => $curriculum_name,
+                ...$profile->makeHidden(['photo', 'curriculum', 'user'])->toArray(),
                 'doctor' => [
-                    'id' => $profile->user->id,
-                    'first_name' => $profile->user->first_name,
-                    'last_name' => $profile->user->last_name,
-                    'email' => $profile->user->email,
-                    'specializations' => $profile->user->specializations->map(function ($spec) {
-                        return [
-                            'id' => $spec->id,
-                            'name' => $spec->name
-                        ];
-                    })
+                    ...$profile->user->makeHidden('specializations')->toArray(),
+                    'specializations' => $profile->user->specializations->makeHidden(['created_at', 'updated_at'])
                 ],
-                'has_active_sponsorship' => $profile->sponsorships->where('pivot.end_date', '>', now())->isNotEmpty()
             ];
 
             Log::info('Profile retrieved successfully', ['profile_id' => $authUserId]);
