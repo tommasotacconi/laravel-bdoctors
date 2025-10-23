@@ -19,6 +19,11 @@ class Profile extends Model
         'services'
     ];
 
+    protected $hidden = [
+        'id',
+        'user_id',
+    ];
+
     public function user()
     {
         return $this->belongsTo(User::class);
@@ -39,13 +44,12 @@ class Profile extends Model
         return $this->belongsToMany(Sponsorship::class)->withPivot(['start_date', 'end_date']);
     }
 
-    public function activeSponsorship()
+    public function activeSponsorship(): ?Sponsorship
     {
         $computedTime = TimeHelper::computeAppTime(false);
-        $activeSponsorship = $this->sponsorships()
+        return $this->sponsorships()
             ->wherePivot('start_date', '<', $computedTime)
-            ->wherePivot('end_date', '>', $computedTime);
-
-        return $activeSponsorship;
+            ->wherePivot('end_date', '>', $computedTime)
+            ->first();
     }
 }

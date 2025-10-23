@@ -9,7 +9,12 @@ class Specialization extends Model
 {
     use HasFactory;
 
-    public function users(){
+    protected $hidden = [
+        'pivot'
+    ];
+
+    public function users()
+    {
         return $this->hasMany(User::class);
     }
 }

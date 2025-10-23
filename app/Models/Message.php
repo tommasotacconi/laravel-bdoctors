@@ -9,7 +9,12 @@ class Message extends Model
 {
     use HasFactory;
 
-    public function profiles(){
+    protected $hidden = [
+        'pivot',
+    ];
+
+    public function profiles()
+    {
         return $this->belongsTo(Profile::class);
     }
 }
