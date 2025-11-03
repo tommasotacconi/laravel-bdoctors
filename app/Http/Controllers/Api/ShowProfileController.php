@@ -54,7 +54,7 @@ class ShowProfileController extends Controller
             // Load profile with user and specializations in a single query
             $profile = Profile::with(['user.specializations', /* 'reviews' */])
                 ->where('user_id', $userId)->firstOrFail();
-            $activeSpons = $profile->activeSponsorship()?->makeHidden('profile_id');
+            $activeSpons = $profile->activeSponsorship->first()?->makeHidden('profile_id');
 
             // Transform the data into a cleaner format
             $responseData = [

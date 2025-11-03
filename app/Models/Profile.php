@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Helpers\TimeHelper;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Profile extends Model
 {
@@ -44,12 +45,11 @@ class Profile extends Model
         return $this->belongsToMany(Sponsorship::class)->withPivot(['start_date', 'end_date']);
     }
 
-    public function activeSponsorship(): ?Sponsorship
+    public function activeSponsorship(): BelongsToMany
     {
         $computedTime = TimeHelper::computeAppTime(false);
         return $this->sponsorships()
             ->wherePivot('start_date', '<', $computedTime)
-            ->wherePivot('end_date', '>', $computedTime)
-            ->first();
+            ->wherePivot('end_date', '>', $computedTime);
     }
 }
