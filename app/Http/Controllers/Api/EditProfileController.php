@@ -20,11 +20,11 @@ class EditProfileController extends Controller
                 ->where('user_id', $authUserId)->firstOrFail();
 
             // Transform the data into a cleaner format
-            $photo_name = explode('/', $profile->photo)[1];
-            $curriculum_name = explode('/', $profile->curriculum)[1];
+            $photoName = str_contains($profile->photo, 'photos/') ? explode('photos/', $profile->photo)[1] : 'seeded photos';
+            $curriculumName = str_contains($profile->curriculum, 'curricula/') ? explode('curricula/', $profile->curriculum)[1] : 'seeded cv text';
             $responseData = [
-                'photo' => $photo_name,
-                'curriculum' => $curriculum_name,
+                'photo' => $photoName,
+                'curriculum' => $curriculumName,
                 ...$profile->makeHidden(['photo', 'curriculum', 'user'])->toArray(),
                 'doctor' => [
                     ...$profile->user->makeHidden('specializations')->toArray(),
