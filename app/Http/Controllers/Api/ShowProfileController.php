@@ -54,7 +54,7 @@ class ShowProfileController extends Controller
             // Load profile with user and specializations in a single query
             $profile = Profile::with(['user.specializations', /* 'reviews' */])
                 ->where('user_id', $userId)->firstOrFail();
-            $activeSpons = $profile->activeSponsorship->first()?->makeHidden('profile_id');
+            $activeSpon = $profile->activeSponsorship->first();
 
             // Transform the data into a cleaner format
             $responseData = [
@@ -63,9 +63,12 @@ class ShowProfileController extends Controller
                     ...$profile->user->toArray(),
                     'specializations' => $profile->user->specializations->makeHidden(['created_at', 'updated_at'])
                 ],
-                'active_sponsorship' => [
-                    ...($activeSpons ? $activeSpons : []),
-                ]
+                'active_sponsorship' => $activeSpon
+                    ? [
+                        ...$activeSpon->toArray(),
+                        'pivot' => ['start_date' => $activeSpon?->pivot->start_date]
+                    ]
+                    : []
             ];
 
             Log::info('Profile retrieved successfully', ['profile_id' => $userId]);
