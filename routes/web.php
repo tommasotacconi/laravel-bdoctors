@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Log;
 |
 */
 
-Route::get('/', function () {
+Route::get('/status', function () {
     return '<html><body><h1>Project is Active</h1><p>The application is up and running.</p></body></html>';
 });
 
