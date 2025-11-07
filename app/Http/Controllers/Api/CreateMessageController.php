@@ -17,7 +17,7 @@ class CreateMessageController extends Controller
             $validated = $this->validateMessageData($request);
 
             $user = User::where([
-                ['homonymous_id', $validated['doctor_details']['homonymous_id']],
+                ['homonymous_id', $validated['doctor_details']['homonymous_id'] ?? null] ,
                 ['first_name', $validated['doctor_details']['first_name']],
                 ['last_name', $validated['doctor_details']['last_name']],
             ])->with('profile')->firstOrFail();
