@@ -9,6 +9,14 @@ class Message extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'profile_id',
+        'content',
+        'email',
+        'first_name',
+        'last_name',
+    ];
+
     protected $hidden = [
         'pivot',
     ];

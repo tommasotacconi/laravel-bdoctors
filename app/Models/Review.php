@@ -9,6 +9,15 @@ class Review extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'profile_id',
+        'vote',
+        'content',
+        'email',
+        'first_name',
+        'last_name'
+    ];
+
     public function profiles(){
         return $this->belongsTo(Profile::class);
     }

@@ -9,51 +9,21 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
+use function App\Helpers\makeResponseWithCreated;
+
 class CreateMessageController extends Controller
 {
     public function create(Request $request)
     {
-        try {
+        return makeResponseWithCreated('Message', function () use ($request) {
             $validated = $this->validateMessageData($request);
+            $user = User::where($validated['doctor_details'])->with('profile')->firstOrFail();
 
-            $user = User::where([
-                ['homonymous_id', $validated['doctor_details']['homonymous_id'] ?? null] ,
-                ['first_name', $validated['doctor_details']['first_name']],
-                ['last_name', $validated['doctor_details']['last_name']],
-            ])->with('profile')->firstOrFail();
-            $newMessage = new Message();
-
-            $newMessage->profile_id = $user->profile->id;
-            $newMessage->content = $validated['content'];
-            $newMessage->email = $validated['email'];
-            $newMessage->first_name = $validated['first_name'];
-            $newMessage->last_name = $validated['last_name'];
-
-            $newMessage->save();
-
-            Log::info('Message created successfully', ['message_id' => $newMessage->id]);
-
-            return response()->json([
-                'message' => 'Message created successfully',
-                'profile' => $newMessage
-            ], 201);
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            Log::error('Message creation validation failed', ['errors' => $e->errors()]);
-            return response()->json([
-                'message' => 'Validation failed',
-                'errors' => $e->errors()
-            ], 422);
-        } catch (\Exception $e) {
-            Log::error('Message creation failed', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+            return Message::create([
+                ...$validated,
+                'profile_id' => $user->profile->id
             ]);
-
-            return response()->json([
-                'message' => 'Message creation failed',
-                'error' => $e->getMessage()
-            ], 500);
-        }
+        });
     }
 
     /**
