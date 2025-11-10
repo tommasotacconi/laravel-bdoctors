@@ -19,7 +19,6 @@ class ReviewController extends Controller
 {
     public function index()
     {
-
         $authenticatedUserProfileId = Profile::where('user_id', Auth::id())->firstOrFail()->id;
         $reviews = Review::where('profile_id', $authenticatedUserProfileId)->orderByDesc('created_at')->get();
         //dd($reviews);
@@ -73,5 +72,4 @@ class ReviewController extends Controller
 
         return response()->json($users);
     }
-
 }
