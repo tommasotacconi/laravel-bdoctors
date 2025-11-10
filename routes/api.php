@@ -4,12 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\RegisterController;
-use App\Http\Controllers\Api\CreateMessageController;
-use App\Http\Controllers\Api\CreateReviewController;
 use App\Http\Controllers\Api\EditController;
-use App\Http\Controllers\Api\FilteredSearchController;
-use App\Http\Controllers\Api\IndexMessageController;
-use App\Http\Controllers\Api\IndexReviewController;
 use App\Http\Controllers\Api\IndexSponsoshipController;
 use App\Http\Controllers\Api\RegisterController as ApiRegisterController;
 use App\Http\Controllers\Api\UpdateController;
@@ -21,6 +16,9 @@ use App\Http\Controllers\Api\EditProfileController;
 use App\Http\Controllers\Api\IndexProfileController;
 use App\Http\Controllers\Api\ShowProfileController;
 use App\Http\Controllers\Api\UpdateProfileController;
+use App\Http\Controllers\Api\ReviewController;
+use App\Http\Controllers\Api\MessageController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -48,13 +46,13 @@ Route::get('/specializations', function () {
 })->name('api.specializations');
 
 // Reviews routes
-Route::get('/reviews', [IndexReviewController::class, 'index'])->name('api.reviews.index');
-Route::post('/reviews', [CreateReviewController::class, 'create'])->name('api.reviews.create');
-Route::get('/reviews/filter/{specialization}/{rating?}/{reviews?}', [FilteredSearchController::class, 'filter'])->name('api.reviews.filter');
+Route::get('/reviews', [ReviewController::class, 'index'])->name('api.reviews.index');
+Route::post('/reviews', [ReviewController::class, 'create'])->name('api.reviews.create');
+Route::get('/reviews/filter/{specialization}/{rating?}/{reviews?}', [ReviewController::class, 'filter'])->name('api.reviews.filter');
 
 // Messages routes
-Route::get('/messages', [IndexMessageController::class, 'index'])->name('api.messages.index');
-Route::post('/messages', [CreateMessageController::class, 'create'])->name('api.messages.create');
+Route::get('/messages', [MessageController::class, 'index'])->name('api.messages.index');
+Route::post('/messages', [MessageController::class, 'create'])->name('api.messages.create');
 
 // Sponsorships routes
 Route::get('/sponsorships', [IndexSponsoshipController::class, 'index'])->name('api.sponsorships.index');

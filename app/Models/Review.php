@@ -18,6 +18,10 @@ class Review extends Model
         'last_name'
     ];
 
+    protected $hidden = [
+        'profile_id'
+    ];
+
     public function profiles(){
         return $this->belongsTo(Profile::class);
     }

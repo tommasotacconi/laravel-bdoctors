@@ -18,6 +18,7 @@ class Message extends Model
     ];
 
     protected $hidden = [
+        'profile_id',
         'pivot',
     ];
 
