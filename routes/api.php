@@ -65,12 +65,6 @@ Route::middleware('auth')->group(function () {
 Route::get('/profiles', [IndexProfileController::class, 'index'])->name('api.profiles.index');
 Route::get('/profiles/{name}', [ShowProfileController::class, 'show'])->name('api.profiles.show');
 
-// Protected routes
-Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/user', function (Request $request) {
-        return $request->user()->load('specializations');
-    });
-});
-
+// Payments
 Route::get('/braintree/token', [BraintreeApiController::class, 'generateToken']);
 Route::post('/braintree/process-payment', [BraintreeApiController::class, 'processPayment']);
