@@ -5,7 +5,6 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\Api\EditController;
-use App\Http\Controllers\Api\IndexSponsoshipController;
 use App\Http\Controllers\Api\RegisterController as ApiRegisterController;
 use App\Http\Controllers\Api\UpdateController;
 use App\Http\Controllers\Auth\RegisterController as AuthRegisterController;
@@ -16,9 +15,9 @@ use App\Http\Controllers\Api\EditProfileController;
 use App\Http\Controllers\Api\IndexProfileController;
 use App\Http\Controllers\Api\ShowProfileController;
 use App\Http\Controllers\Api\UpdateProfileController;
+use App\Http\Controllers\Api\SponsorshipController;
 use App\Http\Controllers\Api\ReviewController;
 use App\Http\Controllers\Api\MessageController;
-
 
 /*
 |--------------------------------------------------------------------------
@@ -55,8 +54,8 @@ Route::get('/messages', [MessageController::class, 'index'])->name('api.messages
 Route::post('/messages', [MessageController::class, 'create'])->name('api.messages.create');
 
 // Sponsorships routes
-Route::get('/sponsorships', [IndexSponsoshipController::class, 'index'])->name('api.sponsorships.index');
-Route::get('/sponsorships/sponsored', [IndexSponsoshipController::class, 'sponsored'])->name('api.sponsorships.sponsored');
+Route::get('/sponsorships', [SponsorshipController::class, 'index'])->name('api.sponsorships.index');
+Route::get('/sponsorships/sponsored', [SponsorshipController::class, 'sponsored'])->name('api.sponsorships.sponsored');
 
 // Profiles routes
 // -protected

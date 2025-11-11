@@ -11,7 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 
-class IndexSponsoshipController extends Controller
+class SponsorshipController extends Controller
 {
     public function index()
     {
@@ -28,31 +28,19 @@ class IndexSponsoshipController extends Controller
         $sponsoredProfiles = Profile::has('activeSponsorship')
             ->with(['user.specializations', 'activeSponsorship'])->get();
         $sortedSponsoredProfiles = $sponsoredProfiles->sortByDesc(function (object $sponsored, int $key) {
-            return $sponsored->activeSponsorship[0]['pivot']['start_date'];
+            return $sponsored->activeSponsorship->first()['pivot']['start_date'];
         })->values();
 
         // Modify visible columns in profiles, users and specializations:
-        $sponsoredProfiles->makeHidden([
-            'id',
-            'user_id',
-            'created_at',
-            'updated_at',
-            'user.id',
-            'user.email',
-            'user.email_verified_at',
-            'user.home_address',
-            'user.created_at',
-            'user.updated_at',
-            'user.specializations.id',
-            'user.specializations.created_at',
-            'user.specializations.updated_at',
-            'user.specializations.pivot',
-            'active_sponsorship.id',
-            'active_sponsorship.created_at',
-            'active_sponsorship.updated_at',
-            'active_sponsorship.pivot.profile_id',
-            'active_sponsorship.pivot.sponsorship_id',
-        ]);
+        $sortedSponsoredProfiles->transform(function ($profile) {
+            $profile->makeHidden(['created_at', 'updated_at'])
+                ->user->makeHidden(['home_address', 'email_verified_at', 'created_at', 'updated_at'])
+                ->specializations->makeHidden(['id', 'created_at', 'updated_at']);
+            $profile->activeSponsorship->makeHidden(['id', 'description', 'price'])->makeVisible(['pivot'])
+                ->transform(fn ($spon) => $spon->pivot->makeHidden('profile_id', 'sponsorship_id'));
+
+            return $profile;
+        });
 
         // Pagination
         $perPage = $request->input('per_page', 10);
