@@ -37,12 +37,9 @@ Route::post('/register', [ApiRegisterController::class, 'register'])->name('api.
 Route::post('/logout', [AuthController::class, 'logout']);
 
 // Specializations route
-Route::get('/specializations', function () {
-    $specializations = Specialization::select('id', 'name')->get();
-    return response()->json([
-        'specializations' => $specializations
-    ]);
-})->name('api.specializations');
+Route::get('/specializations', fn () => response()->json([
+    'specializations' => Specialization::select('id', 'name')->get()
+]))->name('api.specializations');
 
 // Reviews routes
 Route::get('/reviews', [ReviewController::class, 'index'])->name('api.reviews.index');
