@@ -2,12 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\RegisterController;
-use App\Http\Controllers\Api\EditController;
 use App\Http\Controllers\Api\RegisterController as ApiRegisterController;
-use App\Http\Controllers\Api\UpdateController;
-use App\Http\Controllers\Auth\RegisterController as AuthRegisterController;
 use App\Models\Specialization;
 use App\Http\Controllers\Api\BraintreeApiController;
 use App\Http\Controllers\Api\CreateProfileController;
@@ -18,6 +13,7 @@ use App\Http\Controllers\Api\UpdateProfileController;
 use App\Http\Controllers\Api\SponsorshipController;
 use App\Http\Controllers\Api\ReviewController;
 use App\Http\Controllers\Api\MessageController;
+use App\Http\Controllers\Auth\AuthController;
 
 /*
 |--------------------------------------------------------------------------
@@ -29,12 +25,6 @@ use App\Http\Controllers\Api\MessageController;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
-
-// Authentication routes
-Route::post('/login', [AuthController::class, 'login'])->name('api.login');
-Route::get('/login/check', [AuthController::class, 'checkLoginStatus'])->name('api.login.check');
-Route::post('/register', [ApiRegisterController::class, 'register'])->name('api.register');
-Route::post('/logout', [AuthController::class, 'logout']);
 
 // Specializations route
 Route::get('/specializations', fn () => response()->json([
@@ -56,7 +46,7 @@ Route::get('/sponsorships/sponsored', [SponsorshipController::class, 'sponsored'
 
 // Profiles routes
 // -protected
-Route::middleware('auth')->group(function () {
+Route::middleware('auth:sanctum')->group(function () {
     Route::post('/profiles', [CreateProfileController::class, 'create'])->name('api.profiles.create');
     Route::get('/profiles/edit', [EditProfileController::class, 'edit'])->name('api.profiles.edit');
     Route::patch('/profiles', [UpdateProfileController::class, 'update'])->name('api.profiles.update');
