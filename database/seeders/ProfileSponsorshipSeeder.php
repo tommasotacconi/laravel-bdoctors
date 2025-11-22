@@ -25,7 +25,7 @@ class ProfileSponsorshipSeeder extends Seeder
         $selectedYearEnd = Carbon::create(2024, 12, 31, 23, 59, 59);
 
         foreach ($profiles as $profile) {
-            $sponsorshipsNumber = rand(0, 10);
+            $sponsorshipsNumber = rand(0, 15);
             for ($i = 0; $i < $sponsorshipsNumber; $i++) {
                 $sponsorshipId = $faker->randomKey($sponsorships);
                 $sponsorshipDuration = $sponsorships[$sponsorshipId];

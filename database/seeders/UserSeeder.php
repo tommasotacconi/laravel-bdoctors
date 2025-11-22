@@ -30,9 +30,15 @@ class UserSeeder extends Seeder
             } else if ($i === 200 - 1 || $i === 249 - 1) {
                 $this->makeTestUser($newUser, $faker, $i, 'Serena', 'Pesano');
             } else {
-                $newUser->first_name = $faker->firstName();
-                $newUser->last_name = $faker->lastName();
-                $newUser->email = $faker->email();
+                $fName = $faker->firstName();
+                $lName = $faker->lastName();
+                $newUser->first_name = $fName;
+                $newUser->last_name = $lName;
+                // ---Email generation
+                $usernameNumber = $faker->randomNumber(2, true);
+                $eventualUsNum = $faker->boolean(20) ? $usernameNumber : null;
+                $usernameComponents = $faker->shuffle(["$fName{$faker->randomElement(['.', '-', '_', ''])}$lName", $eventualUsNum]);
+                $newUser->email = str_replace(' ', '', strtolower(implode($usernameComponents)) . "@$faker->freeEmailDomain"); // ---
                 $newUser->password = Hash::make($faker->password(6, 20));
                 $newUser->created_at = Carbon::create(2024, 1, 1, 0);
             }
