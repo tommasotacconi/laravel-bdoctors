@@ -31,7 +31,7 @@ class ReviewController extends Controller
     public function create(Request $request)
     {
         return makeResponseWithCreated('Review', function () use ($request) {
-            $validated = $this->validateReviewData($request);
+            $validated = $request->validate(ValidationRules::review());
             $user = User::where($validated['doctor_details'])->with('profile')->firstOrFail();
 
             return Review::create([
@@ -63,11 +63,12 @@ class ReviewController extends Controller
             ->join('specializations', 'specialization_user.specialization_id', '=', 'specializations.id')
             ->leftJoin('reviews', 'profiles.id', '=', 'reviews.profile_id')
             ->where('specializations.name', '=', $specialization)
+            ->selectRaw('ROUND(AVG(reviews.vote), 0) AS avg_vote')->selectRaw('COALESCE(COUNT(reviews.id), 0) AS total_reviews')
             ->groupBy('profiles.id', 'specializations.id')->with(['user.specializations', 'reviews', 'activeSponsorship']);
         if ($rating !== null && $rating !== "null")
-            $query->selectRaw('ROUND(AVG(reviews.vote), 0) AS avg_vote')->havingRaw('avg_vote >= ?', [$rating]);
+            $query->havingRaw('avg_vote >= ?', [$rating]);
         if ($reviews !== null && $reviews !== "null")
-            $query->selectRaw('COALESCE(COUNT(reviews.id), 0) AS total_reviews')->havingRaw('total_reviews >= ?', [$reviews]);
+            $query->havingRaw('total_reviews >= ?', [$reviews]);
         $users = $query->get();
 
         return response()->json($users);
