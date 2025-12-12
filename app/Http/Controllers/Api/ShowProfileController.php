@@ -68,7 +68,7 @@ class ShowProfileController extends Controller
                         ...$activeSpon->toArray(),
                         'pivot' => ['start_date' => $activeSpon?->pivot->start_date]
                     ]
-                    : []
+                    : null
             ];
 
             Log::info('Profile retrieved successfully', ['profile_id' => $userId]);
