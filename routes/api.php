@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\SponsorshipController;
 use App\Http\Controllers\Api\ReviewController;
 use App\Http\Controllers\Api\MessageController;
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\SponsoredProfileController;
 
 /*
 |--------------------------------------------------------------------------
@@ -42,7 +43,6 @@ Route::post('/messages', [MessageController::class, 'create'])->name('api.messag
 
 // Sponsorships routes
 Route::get('/sponsorships', [SponsorshipController::class, 'index'])->name('api.sponsorships.index');
-Route::get('/sponsorships/sponsored', [SponsorshipController::class, 'sponsored'])->name('api.sponsorships.sponsored');
 
 // Profiles routes
 // -protected
@@ -53,6 +53,7 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 // -public
 Route::get('/profiles', [IndexProfileController::class, 'index'])->name('api.profiles.index');
+Route::get('/profiles/sponsored', [SponsoredProfileController::class, 'index'])->name('api.profiles.sponsored');
 Route::get('/profiles/{name}', [ShowProfileController::class, 'show'])->name('api.profiles.show');
 
 // Payments
