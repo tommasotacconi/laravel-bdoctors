@@ -25,22 +25,11 @@ class SponsorshipController extends Controller
 
     public function sponsored(Request $request)
     {
-        $sponsoredProfiles = Profile::has('activeSponsorship')
-            ->with(['user.specializations', 'activeSponsorship'])->get();
+        $sponsoredProfiles = Profile::has('activeSponsorshipPivot')
+            ->with(['user.specializations', 'activeSponsorshipPivot.sponsorship'])->get();
         $sortedSponsoredProfiles = $sponsoredProfiles->sortByDesc(function (object $sponsored, int $key) {
-            return $sponsored->activeSponsorship->first()['pivot']['start_date'];
+            return $sponsored->activeSponsorshipPivot->start_date;
         })->values();
-
-        // Modify visible columns in profiles, users and specializations:
-        $sortedSponsoredProfiles->transform(function ($profile) {
-            $profile->makeHidden(['created_at', 'updated_at'])
-                ->user->makeHidden(['home_address', 'email_verified_at', 'created_at', 'updated_at'])
-                ->specializations->makeHidden(['id', 'created_at', 'updated_at']);
-            $profile->activeSponsorship->makeHidden(['id', 'description', 'price'])->makeVisible(['pivot'])
-                ->transform(fn ($spon) => $spon->pivot->makeHidden('profile_id', 'sponsorship_id'));
-
-            return $profile;
-        });
 
         // Pagination
         $perPage = $request->input('per_page', 10);

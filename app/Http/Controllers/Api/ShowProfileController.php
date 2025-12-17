@@ -51,31 +51,14 @@ class ShowProfileController extends Controller
         }
 
         try {
-            // Load profile with user and specializations in a single query
-            $profile = Profile::with(['user.specializations', /* 'reviews' */])
-                ->where('user_id', $userId)->firstOrFail();
-            $activeSpon = $profile->activeSponsorship->first();
-
-            // Transform the data into a cleaner format
-            $responseData = [
-                ...$profile->toArray(),
-                'user' => [
-                    ...$profile->user->toArray(),
-                    'specializations' => $profile->user->specializations->makeHidden(['created_at', 'updated_at'])
-                ],
-                'active_sponsorship' => $activeSpon
-                    ? [
-                        ...$activeSpon->toArray(),
-                        'pivot' => ['start_date' => $activeSpon?->pivot->start_date]
-                    ]
-                    : null
-            ];
+            $profile = Profile::with(['user.specializations', 'activeSponsorshipPivot.sponsorship', /* 'reviews' */])
+                ->where('user_id', $userId)->firstOrFail()->append('active_sponsorship');
 
             Log::info('Profile retrieved successfully', ['profile_id' => $userId]);
 
             return response()->json([
                 'success' => true,
-                'profile' => $responseData
+                'profile' => $profile
             ], 200);
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             Log::warning('Profile not found', ['name_param' => $name]);

@@ -28,7 +28,7 @@ use App\Http\Controllers\Auth\AuthController;
 
 // Specializations route
 Route::get('/specializations', fn () => response()->json([
-    'specializations' => Specialization::select('id', 'name')->get()
+    'specializations' => Specialization::select('id', 'name')->get()->makeVisible('id')
 ]))->name('api.specializations');
 
 // Reviews routes
