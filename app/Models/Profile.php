@@ -3,9 +3,9 @@
 namespace App\Models;
 
 use App\Helpers\TimeHelper;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Profile extends Model
 {
@@ -23,7 +23,13 @@ class Profile extends Model
     protected $hidden = [
         'id',
         'user_id',
+        'activeSponsorshipPivot'
     ];
+
+    protected function activeSponsorship(): Attribute
+    {
+        return Attribute::get(fn () => $this->activeSponsorshipPivot?->sponsorship->name);
+    }
 
     public function user()
     {
@@ -42,14 +48,12 @@ class Profile extends Model
 
     public function sponsorships()
     {
-        return $this->belongsToMany(Sponsorship::class)->withPivot(['start_date', 'end_date']);
+        return $this->belongsToMany(Sponsorship::class)
+            ->using(ProfileSponsorship::class)
+            ->withPivot(['start_date', 'end_date']);
     }
 
-    public function activeSponsorship(): BelongsToMany
-    {
-        $computedTime = TimeHelper::computeAppTime(false);
-        return $this->sponsorships()
-            ->wherePivot('start_date', '<', $computedTime)
-            ->wherePivot('end_date', '>', $computedTime);
+    public function activeSponsorshipPivot() {
+        return $this->hasOne(ProfileSponsorship::class)->active();
     }
 }
