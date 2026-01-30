@@ -53,6 +53,7 @@ class ShowProfileController extends Controller
         try {
             $profile = Profile::with(['user.specializations', 'activeSponsorshipPivot.sponsorship', /* 'reviews' */])
                 ->where('user_id', $userId)->firstOrFail()->append('active_sponsorship');
+            $profile->user->makeVisible('home_address');
 
             Log::info('Profile retrieved successfully', ['profile_id' => $userId]);
 

@@ -27,7 +27,7 @@ class EditProfileController extends Controller
                 'curriculum' => $curriculumName,
                 ...$profile->makeHidden(['photo', 'curriculum', 'user'])->toArray(),
                 'doctor' => [
-                    ...$profile->user->makeHidden('specializations')->toArray(),
+                    ...$profile->user->makeHidden('specializations')->makeVisible('home_address')->toArray(),
                     'specializations' => $profile->user->specializations->makeHidden(['created_at', 'updated_at'])
                 ],
             ];
