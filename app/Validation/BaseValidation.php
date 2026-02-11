@@ -41,10 +41,10 @@ class BaseValidation
 
     protected static $profile = [
         'office_address' => ['required', 'string', 'min:1', 'max:100'],
-        'phone' => ['required', 'string', 'min:5', 'max:15'],
-        'services' => ['required', 'string', 'min:1', 'max:400'],
-        'curriculum' => ['required', 'file', 'mimes:jpeg,png,jpg,pdf', 'max:2048'],
-        'photo' => ['required', 'image', 'mimes:jpeg,png,jpg', 'max:2048'],
+        'phone' => ['string', 'regex:/^(?:\+\d{2,3})?[\d\s]{5,12}$/'],
+        'services' => ['required', 'string', 'min:4', 'max:400'],
+        'curriculum' => ['file', 'mimes:jpeg,png,jpg,pdf', 'max:2048'],
+        'photo' => ['image', 'mimes:jpeg,png,jpg', 'max:2048'],
     ];
 
     public static function message()
