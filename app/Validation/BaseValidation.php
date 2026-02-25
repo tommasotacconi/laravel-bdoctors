@@ -24,25 +24,24 @@ class BaseValidation
     ];
 
     protected static $user = [
-        'first_name' => ['required', 'string', 'max:50'],
-        'last_name' => ['required', 'string', 'max:50'],
-        'home_address' => ['required', 'string', 'max:100'],
+        'first_name' => ['string', 'max:50'],
+        'last_name' => ['string', 'max:50'],
+        'home_address' => ['string', 'max:100'],
         'email' => [
-            'required',
             'string',
             'email',
             'max:50',
             'unique:users',
             'regex:/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.(com|it|org|net|edu|gov)$/'
         ],
-        'password' => ['required', 'string', 'min:8'],
-        'specializations_id.*.id' => ['required', 'exists:specializations,id'],
+        'password' => ['string', 'min:8'],
+        'specializations.*' => ['exists:specializations,id'],
     ];
 
     protected static $profile = [
-        'office_address' => ['required', 'string', 'min:1', 'max:100'],
+        'office_address' => ['string', 'min:1', 'max:100'],
         'phone' => ['string', 'regex:/^(?:\+\d{2,3})?[\d\s]{5,12}$/'],
-        'services' => ['required', 'string', 'min:4', 'max:400'],
+        'services' => ['string', 'min:4', 'max:400'],
         'curriculum' => ['file', 'mimes:jpeg,png,jpg,pdf', 'max:2048'],
         'photo' => ['image', 'mimes:jpeg,png,jpg', 'max:2048'],
     ];
@@ -69,8 +68,23 @@ class BaseValidation
         return self::$user;
     }
 
+    public static function userToCreate()
+    {
+        return array_map(fn($value) => [...$value, 'required'], self::user());
+    }
+
     public static function profile()
     {
         return self::$profile;
+    }
+
+    public static function profileToCreate()
+    {
+        $rules = self::profile();
+        foreach (['office_address', 'services'] as $field) {
+            $rules[$field][] = 'required';
+        }
+
+        return $rules;
     }
 }

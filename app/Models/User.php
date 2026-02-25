@@ -51,6 +51,36 @@ class User extends Authenticatable
         'two_factor_confirmed_at' => 'datetime',
     ];
 
+    protected $with = [
+        'specializations'
+    ];
+
+    /**
+     * Set homonymous_id last found homonym
+     * if the only one
+     *
+     * @param array $data
+     * @return User
+     * @throws \Exception
+     */
+    public function setHomId(): User
+    {
+        // Verify presence of homonyms and assign homonymous_id
+        $last_homonymous = User::where([
+            ['first_name', $this->first_name],
+            ['last_name', $this->last_name],
+            ['id', '!=', $this->id]
+        ])->orderByDesc('homonymous_id')->first();
+        if ($last_homonymous !== null) {
+            // Update even last homonymous if it had not homonyms yet
+            if ($last_homonymous->homonymous_id === null) $last_homonymous->update(['homonymous_id' => 1]);
+            $homonymous_id = $last_homonymous->homonymous_id + 1;
+            $this->homonymous_id = $homonymous_id;
+        }
+
+        return $this;
+    }
+
     public function specializations()
     {
         return $this->belongsToMany(Specialization::class);

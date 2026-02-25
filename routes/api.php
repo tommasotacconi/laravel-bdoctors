@@ -1,19 +1,14 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\RegisterController as ApiRegisterController;
 use App\Models\Specialization;
+use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\BraintreeApiController;
-use App\Http\Controllers\Api\CreateProfileController;
-use App\Http\Controllers\Api\EditProfileController;
 use App\Http\Controllers\Api\IndexProfileController;
 use App\Http\Controllers\Api\ShowProfileController;
-use App\Http\Controllers\Api\UpdateProfileController;
 use App\Http\Controllers\Api\SponsorshipController;
 use App\Http\Controllers\Api\ReviewController;
 use App\Http\Controllers\Api\MessageController;
-use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\SponsoredProfileController;
 
 /*
@@ -28,7 +23,7 @@ use App\Http\Controllers\SponsoredProfileController;
 */
 
 // Specializations route
-Route::get('/specializations', fn () => response()->json([
+Route::get('/specializations', fn() => response()->json([
     'specializations' => Specialization::select('id', 'name')->get()->makeVisible('id')
 ]))->name('api.specializations');
 
@@ -47,9 +42,9 @@ Route::get('/sponsorships', [SponsorshipController::class, 'index'])->name('api.
 // Profiles routes
 // -protected
 Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/profiles', [CreateProfileController::class, 'create'])->name('api.profiles.create');
-    Route::get('/profiles/edit', [EditProfileController::class, 'edit'])->name('api.profiles.edit');
-    Route::patch('/profiles', [UpdateProfileController::class, 'update'])->name('api.profiles.update');
+    Route::post('/profiles', [ProfileController::class, 'store'])->name('api.profiles.create');
+    Route::get('/profiles/edit', [ProfileController::class, 'edit'])->name('api.profiles.edit');
+    Route::patch('/profiles', [ProfileController::class, 'update'])->name('api.profiles.update');
 });
 // -public
 Route::get('/profiles', [IndexProfileController::class, 'index'])->name('api.profiles.index');

@@ -2,31 +2,23 @@
 
 namespace App\Actions\Profiles;
 
-use App\Actions\StoreFile;
+use App\Actions\SetFileField;
 use App\Models\Profile;
-use App\Validation\BaseValidation;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use App\Models\User;
 
 class CreateProfile
 {
-    public function __construct(protected Request $req, protected StoreFile $sF) {}
+    public function __construct(protected SetFileField $sFF) {}
 
-    public function handle(): Profile
+    public function handle(User $user, array $data): Profile
     {
-        $validated = $this->req->validate(BaseValidation::profile());
-
-        $validated['user_id'] = Auth::id();
-        $this->prepareFileField('photo', $validated, 'photos');
-        $this->prepareFileField('curriculum', $validated, 'curricula');
-
-        return Profile::create($validated);
-    }
-
-    private function prepareFileField(string $field, array &$validatedReq, string $storageDir)
-    {
-        if ($this->req->hasFile($field)) {
-            $validatedReq[$field] = $this->sF->handle($validatedReq[$field], $storageDir);
+        $fileDir = ['photo' => 'photos', 'curriculum' => 'curricula'];
+        foreach ($data as $field => $value) {
+            if (in_array($field, ['photo', 'curriculum'])) $data[$field] = $this->sFF->handle($data[$field] ?? null, $fileDir[$field]);
         }
+        $profile = $user->profile()->create($data);
+        $profile->user->makeVisible('home_address');
+
+        return $profile;
     }
 }
