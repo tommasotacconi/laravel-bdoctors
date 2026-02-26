@@ -7,13 +7,14 @@ use App\Actions\Fortify\ResetUserPassword;
 use App\Actions\Fortify\UpdateUserPassword;
 use App\Actions\Fortify\UpdateUserProfileInformation;
 use App\Http\Controllers\Auth\AuthStatusController;
-use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Responses\ApiRegisterResponse;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
+use Laravel\Fortify\Contracts\RegisterResponse;
 use Laravel\Fortify\Fortify;
 
 class FortifyServiceProvider extends ServiceProvider
@@ -34,16 +35,18 @@ class FortifyServiceProvider extends ServiceProvider
         /* Customized ations */
         Fortify::createUsersUsing(CreateNewUser::class);
 
+        /* Bindings */
+        $this->app->singleton(RegisterResponse::class, ApiRegisterResponse::class);
+
         /* Rate limiters */
         RateLimiter::for('login', function (Request $request) {
-            $throttleKey = Str::transliterate(Str::lower($request->input(Fortify::username())).'|'.$request->ip());
+            $throttleKey = Str::transliterate(Str::lower($request->input(Fortify::username())) . '|' . $request->ip());
 
             return Limit::perMinute(5)->by($throttleKey);
         });
 
-         /* Routes */
+        /* Routes */
         Route::middleware(config('fortify.middleware', ['web']))->group(function () {
-            Route::post('/register', [RegisteredUserController::class, 'store'])->name('register');
             Route::get('/user/status', AuthStatusController::class)->name('user.status');
         });
     }
