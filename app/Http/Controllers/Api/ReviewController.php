@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Helpers\ValidationRules;
 use App\Http\Controllers\Controller;
 use App\Models\Profile;
 use App\Models\Review;
 use App\Models\Specialization;
 use App\Models\User;
+use App\Validation\BaseValidation;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -31,7 +31,7 @@ class ReviewController extends Controller
     public function create(Request $request)
     {
         return makeResponseWithCreated('Review', function () use ($request) {
-            $validated = $request->validate(ValidationRules::review());
+            $validated = $request->validate(BaseValidation::review());
             $user = User::where($validated['doctor_details'])->with('profile')->firstOrFail();
 
             return Review::create([
@@ -45,7 +45,7 @@ class ReviewController extends Controller
     {
         // `$specialization` manipulation to decode its name from the URL
         $specialization = str_replace(array('-', '_'), array(' ', '-'), $specialization);
-        $specialization = preg_replace_callback('/^./', fn ($matches) => strtoupper($matches[0]), $specialization);
+        $specialization = preg_replace_callback('/^./', fn($matches) => strtoupper($matches[0]), $specialization);
 
         // Check specialization existance before executing complete query
         try {
