@@ -2,75 +2,59 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Actions\Reviews\FilterReview;
 use App\Http\Controllers\Controller;
+use App\Http\Responses\RespondsWithApi;
 use App\Models\Profile;
 use App\Models\Review;
-use App\Models\Specialization;
 use App\Models\User;
 use App\Validation\BaseValidation;
-use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
-
-use function App\Helpers\makeResponseWithCreated;
 
 class ReviewController extends Controller
 {
+    use RespondsWithApi;
+
+    public function __construct(protected Request $req, protected BaseValidation $bV) {}
+
     public function index()
     {
         $authenticatedUserProfileId = Profile::where('user_id', Auth::id())->firstOrFail()->id;
         $reviews = Review::where('profile_id', $authenticatedUserProfileId)->orderByDesc('created_at')->get();
-        //dd($reviews);
-        return response()->json([
-            'success' => true,
-            'reviews' => $reviews
-        ]);
+
+        return $this->apiResponse(
+            $reviews,
+            'reviews'
+        );
     }
 
-    public function create(Request $request)
+    public function create()
     {
-        return makeResponseWithCreated('Review', function () use ($request) {
-            $validated = $request->validate(BaseValidation::review());
-            $user = User::where($validated['doctor_details'])->with('profile')->firstOrFail();
+        $validated = $this->req->validate($this->bV::review());
+        $user = User::where($validated['doctor_details'])->with('profile')->firstOrFail();
 
-            return Review::create([
+        return $this->apiResponse(
+            Review::create([
                 ...$validated,
                 'profile_id' => $user->profile->id
-            ]);
-        });
+            ]),
+            'review',
+            'review sent'
+        );
     }
 
-    public function filter(string $specialization, ?string $rating = null, ?string $reviews = null)
+    public function filter(FilterReview $filter, string $specialization, ?string $rating = null, ?string $reviews = null)
     {
-        // `$specialization` manipulation to decode its name from the URL
+        // '$specialization' manipulation to decode its name from the URL
         $specialization = str_replace(array('-', '_'), array(' ', '-'), $specialization);
         $specialization = preg_replace_callback('/^./', fn($matches) => strtoupper($matches[0]), $specialization);
+        if (!is_null($rating)) $rating = (int) $rating;
+        if (!is_null($reviews)) $reviews = (int) $reviews;
 
-        // Check specialization existance before executing complete query
-        try {
-            $spec = Specialization::select('name')->where('name', '=', $specialization);
-
-            if ($spec->get()->isEmpty()) throw new Exception('Specialization not found');
-        } catch (Exception $e) {
-            //throw $th;
-            return response()->json(['Error' => ['message' => $e->getMessage()]], 404);
-        }
-
-        $query = Profile::select('profiles.*', 'specializations.name as specialization_name')
-            ->join('users', 'profiles.user_id', '=', 'users.id')
-            ->join('specialization_user', 'users.id', '=', 'specialization_user.user_id')
-            ->join('specializations', 'specialization_user.specialization_id', '=', 'specializations.id')
-            ->leftJoin('reviews', 'profiles.id', '=', 'reviews.profile_id')
-            ->where('specializations.name', '=', $specialization)
-            ->selectRaw('ROUND(AVG(reviews.vote), 0) AS avg_vote')->selectRaw('COALESCE(COUNT(reviews.id), 0) AS total_reviews')
-            ->groupBy('profiles.id', 'specializations.id')->with(['user.specializations', 'reviews', 'activeSponsorshipPivot.sponsorship']);
-        if ($rating !== null && $rating !== "null")
-            $query->havingRaw('avg_vote >= ?', [$rating]);
-        if ($reviews !== null && $reviews !== "null")
-            $query->havingRaw('total_reviews >= ?', [$reviews]);
-        $users = $query->get()->append('active_sponsorship');
-
-        return response()->json($users);
+        return $this->apiResponse(
+            $filter->handle($specialization, $rating, $reviews),
+            'profiles'
+        );
     }
 }

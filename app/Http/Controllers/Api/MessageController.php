@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Responses\RespondsWithApi;
 use App\Models\Message;
 use App\Models\Profile;
 use App\Models\User;
@@ -10,31 +11,35 @@ use App\Validation\BaseValidation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-use function App\Helpers\makeResponseWithCreated;
-
 class MessageController extends Controller
 {
+    use RespondsWithApi;
+
+    public function __construct(protected Request $req, protected BaseValidation $bV) {}
+
     public function index()
     {
-        $authUserProfileId = Profile::where('user_id', Auth::id())->firstOrFail()->id;
-        $messages = Message::where('profile_id', $authUserProfileId)->orderByDesc('created_at')->get();
+        $authProfile = Profile::where('user_id', Auth::id())->firstOrFail();
+        $messages = Message::where('profile_id', $authProfile->id)->orderByDesc('created_at')->get();
 
-        return response()->json([
-            'success' => true,
-            'messages' => $messages
-        ]);
+        return $this->apiResponse(
+            $messages,
+            'messages',
+        );
     }
 
-    public function create(Request $request)
+    public function create()
     {
-        return makeResponseWithCreated('Message', function () use ($request) {
-            $validated = $request->validate(BaseValidation::message());
-            $user = User::where($validated['doctor_details'])->with('profile')->firstOrFail();
+        $validated = $this->req->validate($this->bV::message());
+        $user = User::where($validated['doctor_details'])->with('profile')->firstOrFail();
 
-            return Message::create([
+        return $this->apiResponse(
+            Message::create([
                 ...$validated,
                 'profile_id' => $user->profile->id
-            ]);
-        });
+            ]),
+            'message_resource',
+            'message sent'
+        );
     }
 }
