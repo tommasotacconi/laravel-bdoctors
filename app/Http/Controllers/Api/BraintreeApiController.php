@@ -6,14 +6,15 @@ use App\Helpers\TimeHelper;
 use Braintree\Gateway;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Responses\RespondsWithApi;
 use App\Models\Profile;
 use App\Models\Sponsorship;
-use Carbon\Carbon;
-use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Auth;
 
 class BraintreeApiController extends Controller
 {
+    use RespondsWithApi;
+
     private $gateway;
 
     public function __construct()
@@ -29,53 +30,50 @@ class BraintreeApiController extends Controller
     public function generateToken()
     {
         $clientToken = $this->gateway->clientToken()->generate();
-        return response()->json(['token' => $clientToken]);
+
+        return $this->apiResponse($clientToken, 'token');
     }
 
-    public function processPayment(Request $request)
+    public function processPayment(Request $req)
     {
         try {
             $result = $this->gateway->transaction()->sale([
-                'amount' => $request->amount,
-                'paymentMethodNonce' => $request->payment_method_nonce,
-                'options' => [
-                    'submitForSettlement' => true
-                ]
+                'amount' => $req->amount,
+                'paymentMethodNonce' => $req->payment_method_nonce,
+                'options' => ['submitForSettlement' => true]
             ]);
 
             if ($result->success) {
-                // Activate sponsorship on authorized user
-                $authenticatedUserId = Auth::id();
-                $sponsorshipName = $request->sponsorshipName;
-                $sponsorship = Sponsorship::where('name', $sponsorshipName)->first();
-                Profile::where('user_id', $authenticatedUserId)->first()
-                    ->sponsorships()->attach($sponsorship->id, [
+                // Activate sponsorship on authenticated user
+                $sponsorship = Sponsorship::where('name', $req->selectedSpon)->first();
+                Profile::where('user_id', Auth::id())->first()->sponsorships()->attach(
+                    $sponsorship->id,
+                    [
                         'start_date' => $computedTime = TimeHelper::computeAppTime(false),
                         'end_date' => $computedTime->addHours($sponsorship->duration),
                         'created_at' => $computedTime
-                    ]);
+                    ]
+                );
 
-                return response()->json([
-                    'success' => true,
-                    'transaction' => [
+                return $this->apiResponse(
+                    [
                         'id' => $result->transaction->id,
                         'amount' => $result->transaction->amount,
                         'status' => $result->transaction->status
-                    ]
-                ]);
-            } else {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Transaction failed',
-                    'errors' => $result->errors->deepAll()
-                ], 422);
-            }
+                    ],
+                    'transaction'
+                );
+            } else
+                return $this->apiResponse($result->errors->deepAll(), 'errors', 'Transaction failed', 422);
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error processing payment',
-                'error' => $e->getMessage()
-            ], 500);
+            return $this->apiResponse(
+                [
+                    'trace' => $e->getTrace()
+                ],
+                'error',
+                $e->getMessage(),
+                500
+            );
         }
     }
 }
