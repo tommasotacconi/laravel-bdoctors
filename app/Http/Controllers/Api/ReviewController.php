@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Actions\Reviews\FilterReview;
+use App\Actions\Review\FilterReview;
 use App\Http\Controllers\Controller;
 use App\Http\Responses\RespondsWithApi;
 use App\Models\Profile;

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Actions\Reviews;
+namespace App\Actions\Review;
 
 use App\Models\Profile;
 use App\Models\Specialization;

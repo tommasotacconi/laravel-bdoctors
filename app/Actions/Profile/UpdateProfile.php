@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Actions\Profiles;
+namespace App\Actions\Profile;
 
 use App\Actions\SetFileField;
 use App\Actions\User\UpdateUser;

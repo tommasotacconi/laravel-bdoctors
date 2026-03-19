@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Actions\Profiles;
+namespace App\Actions\Profile;
 
 use App\Models\Profile;
 use App\Models\User;
