@@ -47,9 +47,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('/profiles', [ProfileController::class, 'update'])->name('api.profiles.update');
 });
 // -public
-Route::get('/profiles', [IndexProfileController::class, 'index'])->name('api.profiles.index');
-Route::get('/profiles/sponsored', [SponsoredProfileController::class, 'index'])->name('api.profiles.sponsored');
-Route::get('/profiles/{name}', [ShowProfileController::class, 'show'])->name('api.profiles.show');
+Route::get('/profiles', [ProfileController::class, 'index'])->name('api.profiles.index');
+Route::get('/profiles/sponsored', [ProfileController::class, 'sponsoredIndex'])->name('api.profiles.sponsored');
+Route::get('/profiles/{name}', [ProfileController::class, 'show'])->name('api.profiles.show');
 
 // Payments
 Route::get('/braintree/token', [BraintreeApiController::class, 'generateToken']);
