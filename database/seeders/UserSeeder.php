@@ -22,7 +22,7 @@ class UserSeeder extends Seeder
     {
         // $specializationIds = Specialization::all()->pluck("id");
 
-        for ($i = 0; $i < 250; $i++) {
+        for ($i = 0; $i < 300; $i++) {
             $newUser = new User();
             // Create two groups of hanonyms of test
             if ($i === 10 - 1 || $i === 50 - 1 || $i === 250 - 1) {
@@ -30,17 +30,15 @@ class UserSeeder extends Seeder
             } else if ($i === 200 - 1 || $i === 249 - 1) {
                 $this->makeTestUser($newUser, $faker, $i, 'Serena', 'Pesano');
             } else {
-                $fName = $faker->firstName();
-                $lName = $faker->lastName();
-                $newUser->first_name = $fName;
-                $newUser->last_name = $lName;
+                $fName = $newUser->first_name = $faker->firstName();
+                $lName = $newUser->last_name = $faker->lastName();
                 // ---Email generation
                 $usernameNumber = $faker->randomNumber(2, true);
                 $eventualUsNum = $faker->boolean(20) ? $usernameNumber : null;
                 $usernameComponents = $faker->shuffle(["$fName{$faker->randomElement(['.', '-', '_', ''])}$lName", $eventualUsNum]);
                 $newUser->email = str_replace(' ', '', strtolower(implode($usernameComponents)) . "@$faker->freeEmailDomain"); // ---
                 $newUser->password = Hash::make($faker->password(6, 20));
-                $newUser->created_at = Carbon::create(2024, 1, 1, 0);
+                $newUser->created_at = Carbon::create(2024, 1, 1, 0)->addDays(350 * rand(1, 90) / 100);
             }
             //$newUser->specialization_id = $faker->randomElement($specializationIds);
 
@@ -83,11 +81,11 @@ class UserSeeder extends Seeder
         }
     }
 
-    public function makeTestUser($userInstance, $fakerInstance, $id, $fName = 'Adriano', $lName = 'Carola')
+    public function makeTestUser($userInstance, $fakerInstance, $ind, $fName = 'Adriano', $lName = 'Carola')
     {
         $fName = $userInstance->first_name = $fName;
         $lName = $userInstance->last_name = $lName;
-        $email = $userInstance->email = $fName . ++$id . $lName . '@testmail.com';
+        $email = $userInstance->email = $fName . ++$ind . $lName . '@testmail.com';
         $pwd = $fakerInstance->password(6, 20);
         $userInstance->password = Hash::make($pwd);
         $userInstance->created_at = Carbon::create(2024, 1, 1, 0);

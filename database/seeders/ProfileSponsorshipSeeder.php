@@ -23,17 +23,23 @@ class ProfileSponsorshipSeeder extends Seeder
         $selectedYearEnd = Carbon::create(2024, 12, 31, 23, 59, 59);
 
         foreach ($profiles as $profile) {
-            $sponsorshipsNumber = rand(0, 30);
+            $daysToNewYear = Carbon::parse($profile->created_at)->diffInDays($selectedYearEnd);
+            // In following array, key is equal to max possible sponsorizations, value to min remaining days
+            $minRemainingDays = [34 => 240, 17 => 120, 9 => 60];
+            $maxSpons = $daysToNewYear > $minRemainingDays[34] ?
+                34 : ($daysToNewYear > $minRemainingDays[17] ?
+                    17 : ($daysToNewYear > $minRemainingDays[9] ?
+                        9 : 1));
+            $sponsorshipsNumber = rand($maxSpons - 3, $maxSpons);
             $addedSpons = [];
             for ($i = 0; $i < $sponsorshipsNumber; $i++) {
                 $sponsorshipId = $faker->randomKey($sponsorships);
                 $sponsorshipDuration = $sponsorships[$sponsorshipId];
 
                 do {
-                    $start_date = $faker->dateTimeBetween($profile->created_at, $selectedYearEnd, 'Europe/Rome');
-                    $start_date = CarbonImmutable::create($start_date);
+                    $created_at = CarbonImmutable::create($faker->dateTimeBetween($profile->created_at, $selectedYearEnd, 'Europe/Rome'));
+                    $start_date = $created_at;
                     $end_date = $start_date->addHours($sponsorshipDuration);
-                    $created_at = Carbon::now()->subDays(Carbon::now()->diffInDays($selectedYearEnd) + 367);
                     // check if there is another sponsorship active in the computed period
                     $isPossible = true;
                     foreach ($addedSpons as ['start_date' => $start, 'end_date' => $end]) {

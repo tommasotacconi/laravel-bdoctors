@@ -24,8 +24,10 @@ class ProfileSeeder extends Seeder
         foreach ($response->json() as $img) {
             $imgUrls[] = $img['urls']['small'];
         }
+        $selectedYearEnd = Carbon::create(2024, 12, 31, 23, 59, 59);
 
-        $userData = User::all()->pluck("created_at", "id");
+        $userData = User::all()->each(fn($user) => $user->created_at = Carbon::parse($user->created_at))
+            ->pluck("created_at", "id");
 
         foreach ($userData as $userId => $createdAt) {
             $newProfile = new Profile();
@@ -38,7 +40,7 @@ class ProfileSeeder extends Seeder
             $newProfile->office_address = $faker->streetAddress();
             $newProfile->phone = $faker->phoneNumber();
             $newProfile->services = $faker->realTextBetween(30, 100);
-            $newProfile->updated_at = $newProfile->created_at = Carbon::parse($createdAt)->addDays(rand(1, 30));
+            $newProfile->updated_at = $newProfile->created_at = $createdAt->addDays($createdAt->diffInDays($selectedYearEnd) * rand(0, 5) / 100);
             $newProfile->save();
         }
     }
