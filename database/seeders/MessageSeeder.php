@@ -20,6 +20,8 @@ class MessageSeeder extends Seeder
         $profileIds = Profile::all()->pluck("id");
 
         foreach ($profileIds as $profileId) {
+            if ($profileId !== 10 && $profileId !== 50 && $profileId !== 250 && $profileId > 100 && $profileId < 240) continue;
+
             for ($i = 0; $i < ($faker->numberBetween(20, 36)); $i++) {
                 $newMessage = new Message();
                 $newMessage->profile_id = $profileId;
