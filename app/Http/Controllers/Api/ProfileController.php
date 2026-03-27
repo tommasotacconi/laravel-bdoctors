@@ -7,6 +7,7 @@ use App\Actions\Profile\CreateProfile;
 use App\Actions\Profile\EditProfile;
 use App\Actions\Profile\GetProfile;
 use App\Actions\Profile\UpdateProfile;
+use App\Helpers\TimeHelper;
 use App\Http\Responses\RespondsWithApi;
 use App\Models\Profile;
 use App\Models\ProfileSponsorship;
@@ -34,13 +35,14 @@ class ProfileController extends Controller
 
     public function sponsoredIndex()
     {
-        $profilesPaginator = Profile::has('activeSponsorshipPivot')->with([
-            'user.specializations',
-            'activeSponsorshipPivot.sponsorship'
-        ])->orderByDesc(
-            ProfileSponsorship::select('start_date')
-                ->whereColumn('profiles.id', 'profile_id')->active()
-        )->paginate($this->req->query('per_page', 10));
+        $fRTime = TimeHelper::normalizeToAppYear($this->req->query('firstReqTime'));
+        $profilesPaginator = Profile::whereHas(
+            'sponsorshipPivot',
+            fn($q) => $q->active($fRTime)
+        )->with(['user.specializations',])
+            ->orderByDesc(ProfileSponsorship::select('start_date')
+                ->whereColumn('profiles.id', 'profile_id')->active($fRTime))
+            ->paginate($this->req->query('per_page', 10));
 
         return $this->apiResponse($profilesPaginator, 'paginated_profiles');
     }

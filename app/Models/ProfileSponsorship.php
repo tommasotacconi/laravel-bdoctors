@@ -9,21 +9,20 @@ class ProfileSponsorship extends Pivot
 {
     protected $table = 'profile_sponsorship';
 
-    protected $dates = [
-        'start_date',
-        'end_date'
-    ];
+    public function scopeActive($query, $time = null)
+    {
+        $computedTime = $time ?? TimeHelper::computeAppTime(false);
 
-    public function scopeActive($query) {
-        $computedTime = TimeHelper::computeAppTime(false);
-        $tb = $this->getTable();
-
-        return $query
-            ->where("$tb.start_date", '<=', $computedTime)
-            ->where("$tb.end_date", '>=', $computedTime);
+        $query->where("{$this->table}.start_date", '<=', $computedTime)
+            ->where("{$this->table}.end_date", '>=', $computedTime);
+        \Log::info('SQL', [
+            'query' => $query->toSql(),
+            'bindings' => $query->getBindings()
+        ]);
     }
 
-    public function sponsorship() {
+    public function sponsorship()
+    {
         return $this->belongsTo(Sponsorship::class);
     }
 }
