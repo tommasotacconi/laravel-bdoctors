@@ -6,23 +6,33 @@ use Carbon\CarbonImmutable;
 
 class TimeHelper
 {
-    /**
-     * Compute current time and date and use it as time instant in the app year
-     *
-     * @return CarbonImmutable
-     */
-    public static function computeAppTime(bool $useAppFixedTime = true)
+    protected static function getAppFixedTime(): ?CarbonImmutable
     {
-        if ($useAppFixedTime) {
-            $appFixedTime = CarbonImmutable::parse(env('APP_TIME'));
+        $time = config('app.fixed_time');
 
-            return $appFixedTime;
-        }
+        return $time ? CarbonImmutable::parse($time, config('app.timezone')) : null;
+    }
 
-        $currentTime = CarbonImmutable::now();
-        $yearsDiff = $currentTime->year - CarbonImmutable::parse(env('APP_TIME'))->year;
-        $currentTimeShifted = $currentTime->subYears($yearsDiff);
+    private static function getAppYear(): int
+    {
+        return static::getAppFixedTime()?->year ?? CarbonImmutable::now()->year;
+    }
 
-        return $currentTimeShifted;
+    public static function computeAppTime(bool $useAppFixedTime = true): CarbonImmutable
+    {
+        $base = $useAppFixedTime
+            ? static::getAppFixedTime()
+            : CarbonImmutable::now(config('app.timezone'));
+
+        return ($base ?? CarbonImmutable::now(config('app.timezone')))->settings([
+            'yearOverflow' => false
+        ])->year(static::getAppYear());
+    }
+
+    public static function normalizeToAppYear($time): CarbonImmutable
+    {
+        return CarbonImmutable::parse($time, config('app.timezone'))
+            ->settings(['yearOverflow' => false])
+            ->year(static::getAppYear());
     }
 }
