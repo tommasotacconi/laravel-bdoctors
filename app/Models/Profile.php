@@ -28,7 +28,7 @@ class Profile extends Model
 
     protected function activeSponsorship(): Attribute
     {
-        return Attribute::get(fn () => $this->activeSponsorshipPivot?->sponsorship->name);
+        return Attribute::get(fn() => $this->activeSponsorshipPivot?->sponsorship->name);
     }
 
     public function user()
@@ -53,7 +53,13 @@ class Profile extends Model
             ->withPivot(['start_date', 'end_date']);
     }
 
-    public function activeSponsorshipPivot() {
+    public function sponsorshipPivot()
+    {
+        return $this->hasMany(ProfileSponsorship::class);
+    }
+
+    public function activeSponsorshipPivot()
+    {
         return $this->hasOne(ProfileSponsorship::class)->active();
     }
 }
