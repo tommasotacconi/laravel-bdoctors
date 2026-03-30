@@ -20,9 +20,13 @@ class TimeHelper
 
     public static function computeAppTime(bool $useAppFixedTime = true): CarbonImmutable
     {
+        $req = request();
         $base = $useAppFixedTime
             ? static::getAppFixedTime()
-            : CarbonImmutable::now(config('app.timezone'));
+            : ($req->attributes->has('app_time')
+                ? $req->attributes->get('app_time')
+                : null
+            );
 
         return ($base ?? CarbonImmutable::now(config('app.timezone')))->settings([
             'yearOverflow' => false

@@ -35,13 +35,12 @@ class ProfileController extends Controller
 
     public function sponsoredIndex()
     {
-        $fRTime = TimeHelper::normalizeToAppYear($this->req->query('firstReqTime'));
         $profilesPaginator = Profile::whereHas(
             'sponsorshipPivot',
-            fn($q) => $q->active($fRTime)
+            fn($q) => $q->active()
         )->with(['user.specializations',])
             ->orderByDesc(ProfileSponsorship::select('start_date')
-                ->whereColumn('profiles.id', 'profile_id')->active($fRTime))
+                ->whereColumn('profiles.id', 'profile_id')->active())
             ->paginate($this->req->query('per_page', 10));
 
         return $this->apiResponse($profilesPaginator, 'paginated_profiles');
