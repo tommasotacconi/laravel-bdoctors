@@ -35,8 +35,9 @@ class TimeHelper
 
     public static function normalizeToAppYear($time): CarbonImmutable
     {
-        return CarbonImmutable::parse($time, config('app.timezone'))
-            ->settings(['yearOverflow' => false])
-            ->year(static::getAppYear());
+        return CarbonImmutable::parse($time)
+			->setTimezone(config('app.timezone'))
+			->settings(['yearOverflow' => false])
+			->year(static::getAppYear());
     }
 }
