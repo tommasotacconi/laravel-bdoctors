@@ -15,10 +15,10 @@ class ProfileSponsorship extends Pivot
 
         $query->where("{$this->table}.start_date", '<=', $computedTime)
             ->where("{$this->table}.end_date", '>=', $computedTime);
-        \Log::info('SQL', [
-            'query' => $query->toSql(),
-            'bindings' => $query->getBindings()
-        ]);
+        // \Log::info('SQL', [
+        //     'query' => $query->toSql(),
+        //     'bindings' => $query->getBindings()
+        // ]);
     }
 
     public function sponsorship()
