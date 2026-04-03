@@ -17,7 +17,6 @@ class DatabaseSeeder extends Seeder
 
             SpecializationSeeder::class,
             UserSeeder::class,
-            ProfileSeeder::class,
             MessageSeeder::class,
             ReviewSeeder::class,
             SponsorshipSeeder::class,
