@@ -20,10 +20,12 @@ class ReviewSeeder extends Seeder
         Profile::all()->each(function ($profile) use ($faker) {
             if ($profile->id > 100 && $profile->id < 240) return;
 
-            $meanVote =  rand(1, 5);
-            $maxDeviation = min(abs($meanVote - 0), abs($meanVote - 5));
+            [$min, $max] = [1, 5]; // Votes range
+            $meanVote =  rand($min, $max);
+            $maxDeviation = min(abs($meanVote - $min), abs($meanVote - $max));
             $endDate = TimeHelper::computeAppTime()->endOfYear();
             $reviews = [];
+
             for ($i = 0; $i < ($faker->numberBetween(20, 40)); $i++) {
                 $reviews[] = [
                     'vote' => $meanVote + $faker->randomElement([1, -1]) * $maxDeviation,
