@@ -9,7 +9,9 @@ use Illuminate\Database\Eloquent\Collection;
 
 class FilterReview
 {
-    public function __construct() {}
+    public function __construct()
+    {
+    }
 
     public function handle(string $specialization, ?int $rating, ?int $reviewsNum): Collection
     {
@@ -22,7 +24,7 @@ class FilterReview
             ->join('specialization_user', 'users.id', '=', 'specialization_user.user_id')
             ->join('specializations', 'specialization_user.specialization_id', '=', 'specializations.id')
             ->leftJoin('reviews', 'profiles.id', '=', 'reviews.profile_id')
-            ->where('specializations.name', '=', $specialization)
+            ->whereRaw('LOWER(`specializations`.`name`) = ?', [$specialization])
             ->selectRaw('ROUND(AVG(reviews.vote), 0) AS avg_vote')->selectRaw('COALESCE(COUNT(reviews.id), 0) AS total_reviews')
             ->groupBy('profiles.id', 'specializations.id')->with(['user.specializations', 'reviews', 'activeSponsorshipPivot.sponsorship']);
         if ($rating !== null && $rating !== "null")

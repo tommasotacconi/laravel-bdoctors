@@ -16,7 +16,9 @@ class ReviewController extends Controller
 {
     use RespondsWithApi;
 
-    public function __construct(protected Request $req, protected BaseValidation $bV) {}
+    public function __construct(protected Request $req, protected BaseValidation $bV)
+    {
+    }
 
     public function index()
     {
@@ -46,9 +48,6 @@ class ReviewController extends Controller
 
     public function filter(FilterReview $filter, string $specialization, ?string $rating = null, ?string $reviews = null)
     {
-        // '$specialization' manipulation to decode its name from the URL
-        $specialization = str_replace(array('-', '_'), array(' ', '-'), $specialization);
-        $specialization = preg_replace_callback('/^./', fn($matches) => strtoupper($matches[0]), $specialization);
         if (!is_null($rating)) $rating = (int) $rating;
         if (!is_null($reviews)) $reviews = (int) $reviews;
 
