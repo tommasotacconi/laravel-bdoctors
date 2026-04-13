@@ -21,7 +21,9 @@ class ProfileController extends Controller
 {
     use RespondsWithApi;
 
-    public function __construct(protected Request $req) {}
+    public function __construct(protected Request $req)
+    {
+    }
 
     public function index()
     {
@@ -37,7 +39,7 @@ class ProfileController extends Controller
     {
         $profilesPaginator = Profile::whereHas(
             'sponsorshipPivot',
-            fn($q) => $q->active()
+            fn ($q) => $q->active()
         )->with(['user.specializations',])
             ->orderByDesc(ProfileSponsorship::select('start_date')
                 ->whereColumn('profiles.id', 'profile_id')->active())
@@ -82,7 +84,7 @@ class ProfileController extends Controller
         if ($name === 'authenticated') {
             if (!$user) throw new AuthenticationException();
         } else {
-            $nameEls = explode('-', $name);
+            $nameEls = explode(' ', $name);
             if (!isset($nameEls[2])) $nameEls[] = null;
             $keyedNameElements = array_combine(['first_name', 'last_name', 'homonymous_id'], $nameEls);
             $user = User::where($keyedNameElements)->firstOrFail();
