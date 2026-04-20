@@ -41,7 +41,7 @@ class BaseValidation
     protected static $profile = [
         'office_address' => ['string', 'min:1', 'max:100'],
         'phone' => ['string', 'regex:/^(?:\+\d{2,3})?[\d\s]{5,12}$/'],
-        'services' => ['string', 'min:4', 'max:400'],
+        'services' => ['string', 'max:400'],
         'curriculum' => ['file', 'mimes:jpeg,png,jpg,pdf', 'max:2048'],
         'photo' => ['image', 'mimes:jpeg,png,jpg', 'max:2048'],
     ];
@@ -70,7 +70,7 @@ class BaseValidation
 
     public static function userToCreate()
     {
-        return array_map(fn($value) => [...$value, 'required'], self::user());
+        return array_map(fn ($value) => [...$value, 'required'], self::user());
     }
 
     public static function profile()
